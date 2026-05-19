@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #3F3F3F;
+  --ink-2: #5C5C5C;
+  --paper: #FFFFFF;
+  --cream: #F8F5F0;
+  --bone: #EEE9DF;
+  --sage: #9DAD8E;
+  --sage-deep: #7C8E6C;
+  --khaki: #C9A876;
+  --mauve: #C8A6AE;
+  --slate: #90A3AC;
+  --line: #E3DED4;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-feature-settings: "kern" 1, "ss01" 1;
+}
+
+
+/* Selection */
+::selection {
+  background: var(--sage);
+  color: #FFFFFF;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--paper);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(63, 63, 63, 0.18);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(63, 63, 63, 0.35);
+}
+
+/* Catalogue-style large heading with mixed weight */
+.heading-mixed strong,
+.heading-mixed b {
+  font-weight: 700;
+}
+.heading-mixed {
+  font-weight: 300;
+  letter-spacing: -0.015em;
+  line-height: 1.06;
+}
+
+/* Pronunciation guide style used on covers */
+.font-mono-soft {
+  font-feature-settings: "kern" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Underline-only field */
+.input-underline {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(63, 63, 63, 0.25);
+  border-radius: 0;
+  padding: 0.75rem 0;
+  color: var(--ink);
+  font-weight: 300;
+  font-size: 1rem;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.input-underline::placeholder {
+  color: rgba(63, 63, 63, 0.4);
+}
+.input-underline:focus {
+  border-bottom-color: var(--sage-deep);
+}
+
+/* Marquee edge mask */
+.marquee-mask {
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* Catalogue scalloped curve divider — top */
+.curve-top {
+  -webkit-mask-image: radial-gradient(circle at 50% 0%, transparent 0, transparent 56px, black 56px);
+  mask-image: radial-gradient(circle at 50% 0%, transparent 0, transparent 56px, black 56px);
+}
+
+/* Embossed SLPZY watermark */
+.slpzy-mark {
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  color: rgba(63, 63, 63, 0.04);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Tencel "Feels so right" inspired label */
+.feels-so-right {
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Subtle paper grain on white sections */
+.bg-paper-grain {
+  background-color: var(--paper);
+  background-image: radial-gradient(rgba(63, 63, 63, 0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+/* Section reveal helpers (used by scroll-stage) */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll,
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
