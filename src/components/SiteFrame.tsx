@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
+import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { CartDrawer } from "@/components/CartDrawer";
-import { CustomCursor } from "@/components/CustomCursor";
 import { Footer } from "@/components/Footer";
 import { LenisProvider } from "@/components/LenisProvider";
 import { Navbar } from "@/components/Navbar";
@@ -19,10 +19,9 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
 
   return (
     <LenisProvider>
-      {/* Cursor variants: "silk" | "cloud" | "stitch" | "dreamz" | "ripple" | "label" | ... */}
-      <CustomCursor variant="silk" />
+      <AnnouncementBar />
       <Navbar />
-      <main className="min-h-screen">{children}</main>
+      <main className="min-h-screen pb-[60px] lg:pb-0">{children}</main>
       <Footer />
       <CartDrawer />
     </LenisProvider>

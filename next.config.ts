@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // pg & nodemailer are Node-only — never bundle them for the Edge runtime
-  serverExternalPackages: ["pg", "pg-native", "nodemailer"],
+  // pg is Node-only — never bundle it for the Edge runtime. (Resend is fetch-based.)
+  serverExternalPackages: ["pg", "pg-native"],
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },

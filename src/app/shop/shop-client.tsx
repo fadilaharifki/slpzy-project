@@ -7,8 +7,14 @@ import { FILTER_OPTIONS, formatIDR, type Product, type ProductCategory } from "@
 import { useCart } from "@/store/cartStore";
 import { cn } from "@/lib/cn";
 
-export function ShopClient({ products }: { products: Product[] }) {
-  const [filter, setFilter] = useState<"All" | ProductCategory>("All");
+export function ShopClient({
+  products,
+  initialCategory = "All",
+}: {
+  products: Product[];
+  initialCategory?: "All" | ProductCategory;
+}) {
+  const [filter, setFilter] = useState<"All" | ProductCategory>(initialCategory);
 
   const filtered = useMemo(
     () => (filter === "All" ? products : products.filter((p) => p.category === filter)),
@@ -18,7 +24,7 @@ export function ShopClient({ products }: { products: Product[] }) {
   return (
     <>
       <ScrollStage variant="lift">
-        <section className="pt-32">
+        <section className="pt-14 lg:pt-20">
           <div className="mx-auto max-w-[1480px] px-6 lg:px-12">
             <RevealGroup>
               <p className="text-xs uppercase tracking-widest text-soft" data-reveal>
@@ -38,7 +44,7 @@ export function ShopClient({ products }: { products: Product[] }) {
       </ScrollStage>
 
       {/* Filter bar */}
-      <div className="sticky top-20 z-30 mt-16 border-y border-line bg-paper/85 backdrop-blur-md">
+      <div className="sticky top-[72px] z-30 mt-16 border-y border-line bg-paper/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1480px] flex-wrap items-center justify-between gap-4 px-6 py-5 lg:px-12">
           <div className="flex flex-wrap items-center gap-1.5">
             {FILTER_OPTIONS.map((opt) => {

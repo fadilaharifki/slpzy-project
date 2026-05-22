@@ -18,7 +18,7 @@ export function ProductCard({ product, size = "default" }: Props) {
   const minPrice = priceFrom(product);
   const color = product.colors[selectedColor];
 
-  const aspect = size === "feature" ? "aspect-[4/5]" : "aspect-[4/5]";
+  const aspect = size === "feature" ? "aspect-square" : "aspect-square";
 
   return (
     <article className="group flex flex-col" aria-label={`${product.name} — ${color.name}`}>

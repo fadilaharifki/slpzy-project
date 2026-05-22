@@ -104,7 +104,7 @@ export default function CheckoutPage() {
   return (
     <>
       <ScrollStage variant="lift">
-        <section className="pt-32">
+        <section className="pt-14 lg:pt-20">
           <div className="mx-auto max-w-[1480px] px-6 lg:px-12">
             <RevealGroup>
               <p className="text-xs uppercase tracking-widest text-soft" data-reveal>

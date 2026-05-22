@@ -31,7 +31,7 @@ export default function AboutPage() {
   return (
     <>
       <ScrollStage variant="lift">
-        <section className="relative pt-32">
+        <section className="relative pt-14 lg:pt-20">
           <div className="mx-auto max-w-[1480px] px-6 lg:px-12">
             <RevealGroup>
               <p className="text-xs uppercase tracking-widest text-soft" data-reveal>
@@ -104,6 +104,46 @@ export default function AboutPage() {
               </div>
             </div>
           </RevealGroup>
+        </section>
+      </ScrollStage>
+
+      {/* ============================= BRAND PROMISE ============================= */}
+      <ScrollStage variant="blanket">
+        <section className="bg-paper py-16 lg:py-24">
+          <div className="mx-auto max-w-[1480px] px-6 lg:px-12">
+            <RevealGroup>
+              <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+                <div data-reveal>
+                  <p className="text-xs uppercase tracking-widest text-soft">Brand promise</p>
+                  <h2 className="mt-3 text-[clamp(1.75rem,4vw,3rem)] font-light leading-[1.08]">
+                    <strong className="font-semibold">True comfort</strong> meets{" "}
+                    <span className="text-sage-deep">conscious luxury</span>.
+                  </h2>
+                  <p className="mt-5 max-w-md text-sm font-light leading-[1.85] text-ink/75">
+                    We believe that how you start your day depends entirely on how you ended the night before.
+                    Thank you for trusting SLPZY to be part of your home — this isn&apos;t just making your bed.
+                    It&apos;s a commitment to waking up refreshed, happier, and ready for whatever comes next.
+                  </p>
+                  <div className="mt-10 flex flex-wrap items-center gap-6 text-[10px] uppercase tracking-widest text-soft">
+                    <span className="inline-flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-sage-deep" />Certified Lenzing</span>
+                    <span className="inline-flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-khaki" />Skilled tailors</span>
+                    <span className="inline-flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-ink" />Closed-loop process</span>
+                  </div>
+                </div>
+
+                <div className="relative aspect-[5/6] overflow-hidden rounded-[2.5rem] bg-cream" data-reveal data-reveal-delay="150">
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, #EEE9DF 0%, #C9A876 80%, #A89679 100%)" }} />
+                  <Logo className="absolute right-6 top-6 h-12" tone="text-paper/90" />
+                  <div className="absolute bottom-6 left-6 max-w-[260px] rounded-2xl bg-paper/95 p-5 backdrop-blur-md">
+                    <p className="text-[10px] uppercase tracking-widest text-soft">Founders&apos; note</p>
+                    <p className="mt-2 text-sm font-light leading-relaxed text-ink">
+                      &ldquo;Recharge your energy with ultra comfort sleep like never before with SLPZY.&rdquo;
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </RevealGroup>
+          </div>
         </section>
       </ScrollStage>
 

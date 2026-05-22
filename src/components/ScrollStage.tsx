@@ -15,7 +15,7 @@ import { cn } from "@/lib/cn";
  *   - "curtain"  : large clip-path circle reveal (matches catalogue scallop).
  *   - "stack"    : sticky pin with previous section sliding under via scale + blur.
  */
-export type StageVariant = "lift" | "scale" | "parallax" | "curtain" | "stack";
+export type StageVariant = "lift" | "scale" | "parallax" | "curtain" | "stack" | "blanket";
 
 interface Props {
   variant?: StageVariant;
@@ -97,19 +97,40 @@ export function ScrollStage({ variant = "lift", children, className, curtainColo
     const blur = Math.max(0, progress - 0.7) * 8;
     styles.transform = `scale(${scale})`;
     styles.filter = `blur(${blur}px)`;
+  } else if (variant === "blanket") {
+    // Rise in sync with scroll: progress maps directly to position,
+    // with a gentle ease-out curve so the tail end decelerates nicely.
+    const eased = Math.pow(Math.min(1, progress * 1.8), 0.7);
+    const pct = (1 - eased) * 100;
+    styles.transform = `translateY(${pct}%)`;
   }
 
   return (
     <section
       id={id}
       ref={ref}
-      className={cn("relative", variant === "stack" && "h-[100vh]", className)}
+      className={cn(
+        "relative",
+        variant === "stack" && "h-[100vh]",
+        variant === "blanket" && "z-10",
+        className,
+      )}
       style={variant === "stack" ? { minHeight: `${pinHeight}vh` } : undefined}
     >
       <div
         ref={innerRef}
-        className={cn("transition-[transform,opacity,filter,clip-path] duration-[60ms] ease-linear will-change-transform", variant === "stack" && "sticky top-0 h-screen")}
-        style={styles}
+        className={cn(
+          variant === "blanket"
+            ? "transition-transform duration-[120ms] ease-out will-change-transform overflow-hidden"
+            : "transition-[transform,opacity,filter,clip-path] duration-[60ms] ease-linear will-change-transform",
+          variant === "stack" && "sticky top-0 h-screen",
+        )}
+        style={{
+          ...styles,
+          ...(variant === "blanket"
+            ? { borderRadius: "2.5rem 2.5rem 0 0" }
+            : {}),
+        }}
       >
         {variant === "curtain" && (
           <div
