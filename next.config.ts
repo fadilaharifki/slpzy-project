@@ -1,4 +1,20 @@
+import { spawnSync } from "node:child_process";
 import type { NextConfig } from "next";
+import withSerwistInit from "@serwist/next";
+
+// Generate a revision string for precache versioning
+const revision =
+  spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" }).stdout?.trim() ??
+  crypto.randomUUID();
+
+const withSerwist = withSerwistInit({
+  // Offline fallback page will be precached
+  additionalPrecacheEntries: [{ url: "/~offline", revision }],
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  // Disable PWA service worker in development to avoid caching issues
+  disable: process.env.NODE_ENV === "development",
+});
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -9,4 +25,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

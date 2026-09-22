@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
@@ -7,12 +8,12 @@ const config: Config = {
       colors: {
         // Brand-accurate palette extracted from SLPZY Catalogue Book
         ink: "#3F3F3F",          // primary text & wordmark (warm dark grey)
-        ink2: "#5C5C5C",         // secondary text & dark backgrounds (Xperience section)
+        ink2: "#5C5C5C",         // secondary text & dark backgrounds
         soft: "#8A8A8A",         // tertiary / captions
         paper: "#FFFFFF",        // primary surface
         cream: "#F8F5F0",        // warm off-white surfaces
         bone: "#EEE9DF",         // hero card backgrounds
-        sage: "#9DAD8E",         // signature accent — sage green from hero comforter
+        sage: "#9DAD8E",         // signature accent — sage green
         "sage-deep": "#7C8E6C",  // darker sage for hover/active
         khaki: "#C9A876",        // beige / khaki fabric tone
         mauve: "#C8A6AE",        // dusty pink variant
@@ -66,7 +67,18 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // scrollbar-hide utility for horizontal scroll product row
+    plugin(({ addUtilities }) => {
+      addUtilities({
+        ".scrollbar-hide": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+          "&::-webkit-scrollbar": { display: "none" },
+        },
+      });
+    }),
+  ],
 };
 
 export default config;

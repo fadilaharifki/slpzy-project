@@ -10,3 +10,7 @@ dist
 .env
 next-env.d.ts
 *.tsbuildinfo
+
+# Serwist (PWA) — generated service worker files
+public/sw*
+public/swe-worker*

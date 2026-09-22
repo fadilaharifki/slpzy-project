@@ -1,5 +1,5 @@
 "use client";
-import { ArrowRight } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { formatIDR, priceFrom, type Product } from "@/lib/products";
@@ -8,103 +8,117 @@ import { cn } from "@/lib/cn";
 
 interface Props {
   product: Product;
-  /** "feature" makes the card taller (used in asymmetric grids) */
   size?: "default" | "feature";
+  /** When true, card links to /shop/[id] detail page instead of scroll anchor */
+  linkToDetail?: boolean;
 }
 
-export function ProductCard({ product, size = "default" }: Props) {
+export function ProductCard({ product, linkToDetail = false }: Props) {
   const add = useCart((s) => s.add);
   const [selectedColor, setSelectedColor] = useState(0);
   const minPrice = priceFrom(product);
-  const color = product.colors[selectedColor];
-
-  const aspect = size === "feature" ? "aspect-square" : "aspect-square";
+  const color = product.colors[selectedColor] || product.colors[0];
 
   return (
-    <article className="group flex flex-col" aria-label={`${product.name} — ${color.name}`}>
-      {/* Image */}
-      <div className={cn("relative overflow-hidden rounded-3xl bg-cream", aspect)}>
-        {/* Fabric tone background — gradient mimic */}
-        <div
-          className="absolute inset-0 transition-transform duration-[1100ms] ease-smooth group-hover:scale-[1.04]"
-          style={{
-            background: `linear-gradient(135deg, ${shade(color.hex, 1.1)} 0%, ${color.hex} 50%, ${shade(color.hex, 0.78)} 100%)`,
-          }}
-        />
+    <article className="group flex flex-col" aria-label={`${product.name} — ${color?.name}`}>
+      {/* Product Image Frame */}
+      <Link href={linkToDetail ? `/shop/${product.id}` : `/shop#${product.id}`} className="block">
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-cream/80 transition-colors">
+        {/* Fabric tone representation */}
+        {product.imageUrl ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+            style={{ backgroundImage: `url(${product.imageUrl})` }}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+            style={{
+              background: `radial-gradient(circle at 50% 40%, ${shade(color.hex, 1.06)} 0%, ${color.hex} 60%, ${shade(color.hex, 0.88)} 100%)`,
+            }}
+          >
+            {/* Very subtle organic fabric sheen */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/10 mix-blend-overlay" />
+          </div>
+        )}
 
-        {/* Decorative folds — soft curves */}
-        <svg className="absolute inset-0 h-full w-full opacity-25" viewBox="0 0 400 500" preserveAspectRatio="none" aria-hidden>
-          <path d="M-20 320 Q 100 280 200 340 T 420 360 L 420 520 L -20 520 Z" fill="rgba(255,255,255,0.18)" />
-          <path d="M-20 380 Q 120 340 240 400 T 420 410 L 420 520 L -20 520 Z" fill="rgba(0,0,0,0.06)" />
-        </svg>
-
-        {/* Watermark */}
-        <span className="slpzy-mark absolute inset-0 flex items-center justify-center text-[clamp(4rem,12vw,9rem)] text-paper/15">slpzy</span>
-
-        {/* Tag */}
+        {/* Subtle Badge (Top-Left) */}
         {product.tag && (
-          <span className="absolute left-5 top-5 rounded-full bg-paper/95 px-3 py-1 text-[10px] font-semibold tracking-wide text-ink backdrop-blur-sm">
-            {product.tag.toUpperCase()}
+          <span className="absolute left-3.5 top-3.5 rounded-full bg-paper/90 px-2.5 py-1 text-[9px] font-medium uppercase tracking-widest text-ink shadow-sm backdrop-blur-sm">
+            {product.tag}
           </span>
         )}
 
-        {/* TENCEL ribbon top-right */}
-        <span className="absolute right-5 top-5 rounded-full bg-paper/85 px-3 py-1 text-[9px] font-semibold tracking-wider text-sage-deep backdrop-blur-sm">
-          TENCEL™
-        </span>
-
-        {/* Quick add bar */}
-        <button
-          type="button"
-          onClick={() => add(product, product.variants[0], color)}
-          className="absolute inset-x-5 bottom-5 flex translate-y-[120%] items-center justify-center gap-2 rounded-full bg-ink py-3.5 text-xs font-medium text-paper transition-transform duration-500 ease-smooth group-hover:translate-y-0"
-        >
-          Add to Bag · {formatIDR(product.variants[0].price)}
-          <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.6} />
-        </button>
+        {/* Quick Add Button — hidden when linking to detail page */}
+        {!linkToDetail && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              add(product, product.variants[0], color);
+            }}
+            title={`Add ${product.name} to cart`}
+            className="absolute bottom-3.5 right-3.5 flex h-9 w-9 items-center justify-center rounded-full bg-paper/95 text-ink shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-ink hover:text-paper"
+          >
+            <Plus className="h-4 w-4" strokeWidth={1.8} />
+          </button>
+        )}
       </div>
+      </Link>
 
-      {/* Meta */}
-      <div className="mt-6 space-y-3 px-1">
-        <div className="flex items-start justify-between gap-4">
-          <Link href={`/shop#${product.id}`} className="block">
-            <p className="text-[10px] uppercase tracking-widest text-soft">{product.category}</p>
-            <h3 className="mt-2 text-2xl leading-tight text-ink">
-              {product.displayLead && <span className="font-semibold">{product.displayLead} </span>}
-              <span className="font-light">{product.displayTail}</span>
+      {/* Product Info (Clean editorial typography) */}
+      <div className="mt-4 flex flex-col space-y-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <Link
+            href={linkToDetail ? `/shop/${product.id}` : `/shop#${product.id}`}
+            className="hover:opacity-75 transition-opacity"
+          >
+            <h3 className="text-base font-normal tracking-tight text-ink">
+              {product.name}
             </h3>
           </Link>
-          <div className="text-right">
-            <p className="text-[10px] uppercase tracking-widest text-soft">From</p>
-            <p className="mt-1 text-sm font-semibold text-ink tabular-nums">{formatIDR(minPrice)}</p>
-          </div>
+          <p className="shrink-0 text-sm font-medium tabular-nums text-ink/80">
+            {formatIDR(minPrice)}
+          </p>
         </div>
 
-        {/* Color chips */}
-        <div className="flex items-center gap-2 pt-1">
-          {product.colors.map((c, idx) => (
-            <button
-              key={c.name}
-              type="button"
-              onClick={() => setSelectedColor(idx)}
-              aria-label={c.name}
-              className={cn(
-                "h-5 w-5 rounded-full ring-offset-2 ring-offset-paper transition-all",
-                selectedColor === idx ? "ring-1 ring-ink" : "ring-1 ring-line hover:ring-soft",
-              )}
-              style={{ backgroundColor: c.hex }}
-            />
-          ))}
-          <span className="ml-auto text-[10px] tracking-wider text-soft">{color.name}</span>
+        <p className="text-xs font-light text-soft line-clamp-1">
+          {product.subtitle}
+        </p>
+
+        {/* Minimal Color Swatches & Active Color Name */}
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-1.5">
+            {product.colors.map((c, idx) => (
+              <button
+                key={c.name}
+                type="button"
+                onClick={() => setSelectedColor(idx)}
+                aria-label={c.name}
+                title={c.name}
+                className={cn(
+                  "h-3.5 w-3.5 rounded-full transition-all",
+                  selectedColor === idx
+                    ? "ring-1 ring-ink ring-offset-2 ring-offset-paper scale-110"
+                    : "ring-1 ring-line hover:ring-soft",
+                )}
+                style={{ backgroundColor: c.hex }}
+              />
+            ))}
+          </div>
+          <span className="text-[11px] font-light text-soft">
+            {color.name}
+          </span>
         </div>
       </div>
     </article>
   );
 }
 
-/** Lighten or darken a hex by factor (1 = no change). Quick utility for gradient stops. */
+/** Utility to compute tonal variations of hex color */
 function shade(hex: string, factor: number): string {
-  const h = hex.replace("#", "");
+  const h = hex.replace("#", "").slice(0, 6);
   const r = Math.min(255, Math.round(parseInt(h.slice(0, 2), 16) * factor));
   const g = Math.min(255, Math.round(parseInt(h.slice(2, 4), 16) * factor));
   const b = Math.min(255, Math.round(parseInt(h.slice(4, 6), 16) * factor));

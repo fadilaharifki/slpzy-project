@@ -8,11 +8,10 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const lenis = new Lenis({
-      lerp: 0.08,
-      duration: 1.4,
+      lerp: 0.12,
+      duration: 0.8,
       smoothWheel: true,
       wheelMultiplier: 1,
-      touchMultiplier: 1.5,
     });
 
     function raf(time: number) {

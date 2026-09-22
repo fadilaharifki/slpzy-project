@@ -1,322 +1,326 @@
-import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, Check, Droplets, Feather, RefreshCw, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
 import { MarqueeTicker } from "@/components/MarqueeTicker";
-import { ProductCard } from "@/components/ProductCard";
 import { RevealGroup, ScrollStage } from "@/components/ScrollStage";
-import { COLOR_PALETTE, formatIDR } from "@/lib/products";
+import { TrustBadges } from "@/components/TrustBadges";
+import { CategoryGrid } from "@/components/CategoryGrid";
+import { formatIDR } from "@/lib/products";
 import { getCatalog } from "@/server/services/catalog";
 
 const TICKER = [
   "100% Certified TENCEL™ Lyocell",
-  "Free shipping above IDR 800K",
-  "5 colorways · 7 sizes",
-  "Hypoallergenic & gentle for sensitive skin",
-  "Eco-friendly closed-loop process",
-  "Maximize your rest experience",
+  "Free shipping on orders above IDR 800K",
+  "5 muted colorways · 7 sizes",
+  "Naturally cooling & moisture-wicking",
+  "Gentle on sensitive skin",
+  "Eco-friendly closed-loop production",
 ];
 
-// Always reflect the latest CMS catalogue edits
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const products = await getCatalog();
-  const featured = products.slice(0, 3);
+
   const bundles = products.filter((p) => p.category === "Bundle").slice(0, 2);
 
   return (
-    <>
+    <div className="bg-paper text-ink">
+
       {/* ============================= HERO ============================= */}
-      <ScrollStage variant="lift">
-        <section className="relative">
-          <div className="mx-auto max-w-[1480px] px-6 pb-8 pt-1 lg:px-12 lg:pb-14 lg:pt-2">
+      <section className="relative min-h-[88vh] lg:min-h-[90vh] flex items-end overflow-hidden">
+        {/* Background foto kamar */}
+        <Image
+          src="/images/hero-bedroom.jpg"
+          alt="SLPZY Premium TENCEL™ Bedding"
+          fill
+          priority
+          quality={90}
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+
+        {/* Gradient overlay — gelap di bawah untuk teks, transparan di atas */}
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/25 to-ink/5" />
+
+        {/* Content */}
+        <div className="relative z-10 w-full">
+          <div className="mx-auto max-w-[1440px] px-6 pb-16 lg:px-12 lg:pb-20">
             <RevealGroup>
-              <div className="grid items-end gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
-                <div className="space-y-6">
+              {/* Label */}
+              <div
+                className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-widest text-paper/70 mb-5"
+                data-reveal
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-paper/60" />
+                SLPZY · 100% Certified TENCEL™ Lyocell
+              </div>
 
-                  <h1 className="heading-mixed text-[clamp(2.75rem,6vw,5.5rem)]" data-reveal data-reveal-delay="180">
-                    A state of pure <strong>comfort</strong>,<br />found in genuine{" "}
-                    <strong className="text-sage-deep">TENCEL™</strong> fabric.
-                  </h1>
+              {/* Headline */}
+              <h1
+                className="text-[clamp(2.2rem,5.5vw,4.5rem)] font-light leading-[1.08] tracking-tight text-paper max-w-3xl"
+                data-reveal
+                data-reveal-delay="100"
+              >
+                Experience the perfect{" "}
+                <strong className="font-medium">balance of comfort</strong>{" "}
+                &amp; quality.
+              </h1>
 
-                  <p className="max-w-md text-sm font-light leading-[1.85] text-ink/75" data-reveal data-reveal-delay="280">
-                    slpz·y /slēp ˈēzē/ · sleepeazy — the art of upgrading your life through the luxury of
-                    deep, restorative rest. Premium bedding, dijahit dengan TENCEL™ Lyocell asli.
+              <p
+                className="mt-4 max-w-lg text-base font-light leading-relaxed text-paper/75"
+                data-reveal
+                data-reveal-delay="180"
+              >
+                Seprai dan bedcover mewah dari serat TENCEL™ Lyocell asli bersertifikat Lenzing — sejuk alami, silky-smooth, dan nyaman untuk iklim tropis.
+              </p>
+
+              {/* CTAs */}
+              <div
+                className="mt-8 flex flex-wrap items-center gap-4"
+                data-reveal
+                data-reveal-delay="260"
+              >
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center gap-2.5 rounded-full bg-paper px-7 py-3.5 text-xs font-medium tracking-wider text-ink transition-all hover:bg-cream"
+                >
+                  Explore Products
+                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.8} />
+                </Link>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-2.5 rounded-full border border-paper/50 px-7 py-3.5 text-xs font-medium tracking-wider text-paper transition-all hover:border-paper hover:bg-paper/10"
+                >
+                  About SLPZY
+                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.8} />
+                </Link>
+              </div>
+
+              {/* 3 trust points */}
+              <div
+                className="mt-10 flex flex-wrap gap-6"
+                data-reveal
+                data-reveal-delay="340"
+              >
+                {[
+                  "Premium TENCEL™ Quality",
+                  "Hypoallergenic & Skin-safe",
+                  "Eco-Certified Process",
+                ].map((text) => (
+                  <div key={text} className="flex items-center gap-2">
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full border border-paper/40">
+                      <Check className="h-2.5 w-2.5 text-paper/80" strokeWidth={2.5} />
+                    </div>
+                    <span className="text-[11px] font-medium tracking-wide text-paper/80">
+                      {text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </RevealGroup>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================= TICKER ============================= */}
+      <MarqueeTicker items={TICKER} variant="light" />
+
+      {/* ============================= TRUST BADGES ============================= */}
+      <TrustBadges />
+
+      {/* ============================= CATEGORY GRID ============================= */}
+      <ScrollStage>
+        <CategoryGrid />
+      </ScrollStage>
+
+      {/* ============================= FEATURED PRODUCT BANNER (TENCEL) ============================= */}
+      <ScrollStage>
+        <section className="bg-ink py-16 lg:py-20">
+          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+            <RevealGroup>
+              <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+                {/* Left: Text */}
+                <div data-reveal>
+                  <p className="text-[11px] font-medium uppercase tracking-widest text-sage-deep">
+                    Ultra Premium Fabric
+                  </p>
+                  <h2 className="mt-4 text-[clamp(1.8rem,3.5vw,3rem)] font-light leading-tight tracking-tight text-paper">
+                    Engineered for{" "}
+                    <span className="font-medium text-sage-deep">
+                      healthier sleep.
+                    </span>
+                  </h2>
+                  <p className="mt-4 text-sm font-light leading-relaxed text-paper/65">
+                    Bukan bahan microtex atau imitasi polyester. TENCEL™ Lyocell
+                    diekstrak dari serat kayu alami melalui proses ramah lingkungan
+                    — kelembutan yang bertahan bertahun-tahun.
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-8" data-reveal data-reveal-delay="380">
-                    <Link
-                      href="/shop"
-                      className="group inline-flex items-center gap-3 rounded-full bg-ink px-7 py-4 text-xs font-medium tracking-wider text-paper transition-colors hover:bg-sage-deep"
-                    >
-                      Shop the Catalogue
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-500 ease-smooth group-hover:translate-x-1" strokeWidth={1.6} />
-                    </Link>
-                    <Link href="/about" className="inline-flex items-center gap-2 border-b border-ink pb-1 text-xs font-medium tracking-wider">
-                      Our story <ArrowUpRight className="h-3 w-3" strokeWidth={1.6} />
-                    </Link>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-6 border-t border-line pt-6" data-reveal data-reveal-delay="500">
+                  {/* 3 feature badges */}
+                  <div className="mt-8 space-y-4">
                     {[
-                      ["I", "Exceptional Softness"],
-                      ["II", "Breathable & Cool"],
-                      ["III", "Sustainable Choice"],
-                    ].map(([n, label]) => (
-                      <div key={n}>
-                        <p className="text-xs font-semibold text-sage-deep tabular-nums">{n}.</p>
-                        <p className="mt-1.5 text-[10px] uppercase tracking-widest text-soft">{label}</p>
+                      { icon: Feather, label: "Silky Soft", desc: "Serat mikro yang terasa lembut di kulit" },
+                      { icon: Droplets, label: "Naturally Cooling", desc: "Moisture-wicking 50% lebih baik dari katun" },
+                      { icon: RefreshCw, label: "Breathable Fabric", desc: "Closed-loop produksi, ramah lingkungan" },
+                    ].map(({ icon: Icon, label, desc }) => (
+                      <div key={label} className="flex items-start gap-4">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-paper/10">
+                          <Icon className="h-4 w-4 text-sage-deep" strokeWidth={1.6} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-paper">{label}</p>
+                          <p className="mt-0.5 text-xs font-light text-paper/60">{desc}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
+
+                  <Link
+                    href="/about"
+                    className="mt-8 inline-flex items-center gap-2 rounded-full border border-paper/30 px-6 py-3 text-xs font-medium tracking-wider text-paper transition-colors hover:border-paper/60 hover:bg-paper/10"
+                  >
+                    Discover More <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.8} />
+                  </Link>
                 </div>
 
-                <div className="relative" data-reveal data-reveal-delay="240">
-                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2.5rem] bg-cream lg:aspect-[4/5]">
-                    <ComforterStack />
-
-                    <div className="absolute right-6 top-6 flex items-center gap-3 rounded-full bg-paper/90 px-4 py-2.5 backdrop-blur-md">
-                      <span className="h-2 w-2 animate-pulse rounded-full bg-sage-deep" />
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-ink">SLPZY lyocell made</p>
-                    </div>
-
-                    <div className="absolute bottom-6 left-6 max-w-[260px] rounded-2xl border border-line/80 bg-paper/90 p-5 backdrop-blur-md">
-                      <p className="mt-2 text-xl text-ink">
-                        <span className="font-semibold">Double Sided</span>{" "}
-                        <span className="font-light">Tencel Bedcover</span>
-                      </p>
-                      <div className="my-3 h-px bg-line" />
-                    </div>
-
-                    <div className="absolute right-6 bottom-6 flex flex-col gap-1.5 rounded-full bg-paper/85 p-2 backdrop-blur-md">
-                      {Object.values(COLOR_PALETTE).map((c) => (
-                        <span key={c.name} aria-label={c.name} title={c.name} className="h-4 w-4 rounded-full ring-1 ring-line" style={{ backgroundColor: c.hex }} />
-                      ))}
-                    </div>
+                {/* Right: Product image */}
+                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl" data-reveal data-reveal-delay="120">
+                  <Image
+                    src="/images/cat-bedcover.jpg"
+                    alt="TENCEL Lyocell Premium Bedcover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                  {/* Corner badge */}
+                  <div className="absolute top-4 right-4 rounded-full bg-ink/70 px-3.5 py-1.5 text-[10px] font-medium tracking-widest text-paper/90 backdrop-blur-sm">
+                    TENCEL™ CERTIFIED
                   </div>
                 </div>
               </div>
             </RevealGroup>
           </div>
-
-          <div className="border-y border-line">
-            <div className="mx-auto flex max-w-[1480px] items-center justify-between px-6 py-4 lg:px-12">
-              <p className="text-[10px] uppercase tracking-widest text-soft">EDITION 01 · 2026</p>
-              <p className="hidden text-[10px] uppercase tracking-widest text-soft md:block">slpz·y /slēp ˈēzē/ · sleepeazy</p>
-              <p className="text-[10px] uppercase tracking-widest text-soft">↓ Scroll</p>
-            </div>
-          </div>
         </section>
       </ScrollStage>
 
-      <MarqueeTicker items={TICKER} variant="dark" />
-
-      {/* ============================= FEATURED PRODUCTS ============================= */}
-      <ScrollStage variant="blanket">
-        <section className="bg-paper py-14 lg:py-20">
-          <div className="mx-auto max-w-[1480px] px-6 lg:px-12">
+      {/* ============================= THOUGHTFUL BUNDLES ============================= */}
+      <ScrollStage>
+        <section className="border-y border-line bg-cream/50 py-16 lg:py-24">
+          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
             <RevealGroup>
-              <div className="mb-10 flex items-end justify-between gap-6 border-b border-line pb-6" data-reveal>
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-soft">SLPZY · Catalogue</p>
-                  <h2 className="mt-3 text-[clamp(1.75rem,4vw,3rem)] font-light leading-[1.05]">
-                    The <strong className="font-semibold">essentials</strong> of restful sleep.
+              <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end" data-reveal>
+                <div className="max-w-lg">
+                  <p className="text-[11px] font-medium uppercase tracking-widest text-soft">Curated Sets</p>
+                  <h2 className="mt-2 text-2xl font-light tracking-tight text-ink sm:text-3xl">
+                    Save with complete bundles.
                   </h2>
-                </div>
-                <Link href="/shop" className="hidden items-center gap-2 border-b border-ink pb-1 text-xs font-medium tracking-wider md:inline-flex">
-                  View all <ArrowRight className="h-3 w-3" strokeWidth={1.6} />
-                </Link>
-              </div>
-
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-10" data-reveal data-reveal-delay="150">
-                {featured.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            </RevealGroup>
-          </div>
-        </section>
-      </ScrollStage>
-
-      {/* ============================= BUNDLES ============================= */}
-      <ScrollStage variant="blanket">
-        <section className="relative overflow-hidden bg-sage text-paper py-14 lg:py-20">
-          <Logo className="absolute -left-8 bottom-8 h-48 opacity-[0.08]" tone="text-paper" />
-
-          <div className="relative mx-auto max-w-[1480px] px-6 lg:px-12">
-            <RevealGroup>
-              <div className="mb-8 flex flex-wrap items-end justify-between gap-6" data-reveal>
-                <div className="max-w-xl">
-                  <p className="text-xs uppercase tracking-widest text-paper/70">Save with sets</p>
-                  <h2 className="mt-3 text-[clamp(1.75rem,4vw,3rem)] font-light leading-[1.05]">
-                    Recharge with <strong className="font-semibold">Bundle</strong> savings.
-                  </h2>
-                  <p className="mt-3 max-w-md text-sm font-light leading-[1.85] text-paper/80">
-                    One complete set, ready to dress your bed. Choose Super for a single mattress or Ultra
-                    for rotating spares.
+                  <p className="mt-2 text-sm font-light leading-relaxed text-ink/70">
+                    Satu set lengkap seprai, bedcover, dan sarung bantal guling dengan harga hemat hingga 20%.
                   </p>
                 </div>
-                <Link href="/shop" className="inline-flex items-center gap-2 rounded-full bg-paper px-6 py-3 text-xs font-medium tracking-wider text-ink transition-colors hover:bg-cream">
-                  Compare bundles <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.6} />
+                <Link
+                  href="/shop?c=Bundle"
+                  className="inline-flex items-center gap-2 rounded-full border border-ink/30 px-5 py-2.5 text-xs font-medium tracking-wider text-ink transition-colors hover:bg-ink hover:text-paper"
+                >
+                  Explore Bundles <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
 
-              <div className="grid gap-6 md:grid-cols-2">
-                {bundles.map((p, idx) => (
-                  <div key={p.id} className="group relative overflow-hidden rounded-3xl bg-paper text-ink p-8 lg:p-10" data-reveal data-reveal-delay={`${120 + idx * 120}`}>
-                    <div className="flex items-start justify-between gap-4">
+              <div className="grid gap-6 md:grid-cols-2" data-reveal data-reveal-delay="120">
+                {bundles.map((bundle) => {
+                  const startingPrice = bundle.variants[bundle.variants.length - 1]?.price ?? bundle.variants[0]?.price;
+                  return (
+                    <div
+                      key={bundle.id}
+                      className="flex flex-col justify-between rounded-3xl border border-line bg-paper p-8 lg:p-10 transition-shadow hover:shadow-sm"
+                    >
                       <div>
-                        <p className="text-[10px] uppercase tracking-widest text-soft">{p.category}</p>
-                        <h3 className="mt-2 text-3xl">
-                          <strong className="font-semibold">{p.displayLead}</strong>{" "}
-                          <span className="font-light">{p.displayTail}</span>
-                        </h3>
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-[10px] font-medium uppercase tracking-widest text-soft">
+                            {bundle.category}
+                          </span>
+                          {bundle.tag && (
+                            <span className="rounded-full bg-cream px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-ink">
+                              {bundle.tag}
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="mt-3 text-2xl font-normal text-ink">{bundle.name}</h3>
+                        <p className="mt-2 text-xs font-light text-ink/70">{bundle.subtitle}</p>
+
+                        <div className="my-6 h-px bg-line/70" />
+
+                        <ul className="space-y-2.5">
+                          {bundle.inclusions?.map((inc) => (
+                            <li key={inc} className="flex items-start gap-2.5 text-xs font-light text-ink/80">
+                              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sage-deep" strokeWidth={2} />
+                              <span>{inc}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                      {p.tag && (
-                        <span className="rounded-full bg-sage px-3 py-1 text-[10px] font-semibold tracking-wider text-paper">{p.tag.toUpperCase()}</span>
-                      )}
-                    </div>
 
-                    <p className="mt-4 text-sm font-light leading-relaxed text-ink/75">{p.subtitle}</p>
-
-                    <ul className="mt-8 space-y-2.5 border-t border-line pt-6">
-                      {p.inclusions?.map((inc) => (
-                        <li key={inc} className="flex items-start gap-2.5 text-sm font-light">
-                          <Check className="mt-1 h-3.5 w-3.5 shrink-0 text-sage-deep" strokeWidth={2} />
-                          <span>{inc}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-8 flex items-baseline justify-between">
-                      <div>
-                        <p className="text-[10px] uppercase tracking-widest text-soft">From</p>
-                        <p className="mt-1 text-2xl font-semibold tabular-nums text-ink">{formatIDR(p.variants[p.variants.length - 1].price)}</p>
+                      <div className="mt-8 flex items-baseline justify-between border-t border-line/70 pt-6">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-widest text-soft">Starts from</p>
+                          <p className="mt-1 text-xl font-medium tabular-nums text-ink">
+                            {formatIDR(startingPrice)}
+                          </p>
+                        </div>
+                        <Link
+                          href={`/shop#${bundle.id}`}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-ink px-5 py-2.5 text-xs font-medium tracking-wider text-paper transition-colors hover:bg-sage-deep"
+                        >
+                          Select Size <ArrowRight className="h-3 w-3" />
+                        </Link>
                       </div>
-                      <Link href={`/shop#${p.id}`} className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-[11px] font-medium tracking-wider text-paper transition-colors hover:bg-sage-deep">
-                        See sizes <ArrowRight className="h-3 w-3" strokeWidth={1.6} />
-                      </Link>
                     </div>
-
-                    <svg className="pointer-events-none absolute -bottom-8 -right-12 h-40 w-40 text-sage/15" viewBox="0 0 100 100" fill="currentColor" aria-hidden>
-                      <path d="M0 80 Q 30 50 60 70 T 110 80 L 110 110 L 0 110 Z" />
-                    </svg>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </RevealGroup>
           </div>
         </section>
       </ScrollStage>
 
-      {/* ============================= COMPARISON ============================= */}
-      <ScrollStage variant="blanket">
-        <section className="bg-cream py-14 lg:py-20">
-          <div className="mx-auto max-w-[1480px] px-6 lg:px-12">
+      {/* ============================= CLOSING CTA ============================= */}
+      <ScrollStage>
+        <section className="border-t border-line bg-cream/40 py-20 text-center lg:py-28">
+          <div className="mx-auto max-w-[800px] px-6">
             <RevealGroup>
-              <div className="mb-8 max-w-2xl" data-reveal>
-                <p className="text-xs uppercase tracking-widest text-soft">Know the difference</p>
-                <h2 className="mt-3 text-[clamp(1.75rem,4vw,3rem)] font-light leading-[1.05]">
-                  <strong className="font-semibold">SLPZY PureTencel™</strong> vs.{" "}
-                  <span className="font-light text-ink/60">"Micro Tencel" lookalikes</span>
-                </h2>
-              </div>
-
-              <div className="grid gap-px overflow-hidden rounded-2xl bg-line lg:grid-cols-2" data-reveal data-reveal-delay="150">
-                <CompareCard
-                  title="SLPZY PureTencel™ Sheets"
-                  positive
-                  items={[
-                    "100% Certified TENCEL™ Lyocell · Genuine Lenzing certified",
-                    "Eco-friendly & biodegradable with low environmental impact",
-                    "Silky-soft, breathable, naturally cooling",
-                    "Excellent sweat-wicking & quick-drying",
-                    "Hypoallergenic & gentle for sensitive skin",
-                    "Long-lasting softness even after washes",
-                  ]}
-                />
-                <CompareCard
-                  title='"Micro Tencel" / Microtex Sheets'
-                  items={[
-                    "Synthetic polyester-based blend (not real TENCEL™)",
-                    "No genuine certification — mass-market lookalike",
-                    "Smooth but can feel plasticky & trap heat",
-                    "Poor moisture control, may feel damp",
-                    "Petroleum-based, non-biodegradable",
-                    "May cause irritation, pill or fade quickly",
-                  ]}
-                />
-              </div>
-            </RevealGroup>
-          </div>
-        </section>
-      </ScrollStage>
-
-
-      {/* ============================= CLOSING ============================= */}
-      <ScrollStage variant="blanket">
-        <section className="bg-cream py-14 text-center lg:py-20">
-          <div className="mx-auto max-w-[1480px] px-6 lg:px-12">
-            <RevealGroup>
-              <p className="text-xs uppercase tracking-widest text-soft" data-reveal>End of catalogue</p>
-              <h2 className="mt-4 text-[clamp(2rem,5vw,4rem)] font-light leading-[1.05]" data-reveal data-reveal-delay="120">
-                Start tomorrow with{" "}
-                <strong className="font-semibold text-sage-deep">deeper rest</strong>.
-              </h2>
-              <Link
-                href="/shop"
-                className="mt-12 inline-flex items-center gap-3 rounded-full bg-ink px-8 py-4 text-xs font-medium tracking-wider text-paper transition-colors hover:bg-sage-deep"
+              <p className="text-[11px] font-medium uppercase tracking-widest text-soft" data-reveal>
+                Restorative Sleep
+              </p>
+              <h2
+                className="mt-4 text-3xl font-light tracking-tight text-ink sm:text-5xl"
                 data-reveal
-                data-reveal-delay="240"
+                data-reveal-delay="100"
               >
-                Explore the catalogue <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.6} />
-              </Link>
+                Wake up feeling{" "}
+                <span className="font-normal text-sage-deep">restored</span>.
+              </h2>
+              <p
+                className="mx-auto mt-4 max-w-md text-sm font-light leading-relaxed text-ink/70"
+                data-reveal
+                data-reveal-delay="160"
+              >
+                Tidur nyenyak adalah fondasi hari yang luar biasa. Temukan ukuran dan warna yang sempurna untuk kamar tidurmu.
+              </p>
+              <div className="mt-8" data-reveal data-reveal-delay="220">
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center gap-2 rounded-full bg-ink px-8 py-3.5 text-xs font-medium tracking-wider text-paper transition-colors hover:bg-sage-deep"
+                >
+                  Explore the Catalogue
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
             </RevealGroup>
           </div>
         </section>
       </ScrollStage>
-    </>
-  );
-}
-
-function ComforterStack() {
-  return (
-    <div className="absolute inset-0">
-      <div
-        className="absolute left-[8%] right-[8%] top-[12%] h-[34%] rounded-[28px] shadow-card"
-        style={{ background: "linear-gradient(160deg, #C5D0B6 0%, #9DAD8E 55%, #7C8E6C 100%)" }}
-      >
-        <div className="absolute inset-x-6 top-3 h-px bg-paper/30" />
-        <div className="absolute inset-x-6 top-6 h-px bg-paper/20" />
-      </div>
-      <div
-        className="absolute left-[4%] right-[4%] top-[46%] h-[18%] rounded-[24px]"
-        style={{ background: "linear-gradient(160deg, #D4BD96 0%, #C9A876 100%)" }}
-      />
-      <div
-        className="absolute left-[6%] right-[6%] bottom-[6%] h-[26%] rounded-[28px]"
-        style={{ background: "linear-gradient(180deg, #A89679 0%, #8B7A60 100%)" }}
-      />
-      <span className="slpzy-mark absolute inset-0 flex items-center justify-center text-[clamp(6rem,18vw,14rem)] !text-ink/[0.05]">slpzy</span>
-    </div>
-  );
-}
-
-function CompareCard({ title, items, positive }: { title: string; items: string[]; positive?: boolean }) {
-  return (
-    <div className={`p-8 lg:p-12 ${positive ? "bg-paper" : "bg-cream"}`}>
-      <p className={`text-[10px] uppercase tracking-widest ${positive ? "text-sage-deep" : "text-soft"}`}>
-        {positive ? "What you get" : "Watch out for"}
-      </p>
-      <h3 className="mt-3 text-2xl font-medium">{title}</h3>
-      <ul className="mt-8 space-y-4">
-        {items.map((item) => (
-          <li key={item} className="flex items-start gap-3 text-sm font-light leading-relaxed">
-            <span className={`mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full ${positive ? "bg-sage-deep" : "bg-ink/30"}`} />
-            <span className={positive ? "text-ink/80" : "text-ink/55"}>{item}</span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

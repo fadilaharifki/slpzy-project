@@ -4,7 +4,10 @@ import * as schema from "./schema";
 
 /** Whether a database connection string is present. Services degrade gracefully when false. */
 export function isDbConfigured(): boolean {
-  return Boolean(process.env.DATABASE_URL);
+  const url = process.env.DATABASE_URL;
+  if (!url) return false;
+  if (url.includes("REF") || url.includes("REGION")) return false;
+  return true;
 }
 
 let pool: Pool | null = null;
@@ -19,6 +22,9 @@ function getDb(): NodePgDatabase<typeof schema> {
       connectionString: process.env.DATABASE_URL,
       ssl: { rejectUnauthorized: false },
       max: 5,
+    });
+    pool.on("error", (err) => {
+      console.error("[pg pool] error:", err);
     });
     instance = drizzle(pool, { schema });
   }

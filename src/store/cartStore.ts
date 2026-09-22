@@ -16,6 +16,7 @@ export interface CartItem {
   colorName: string;
   colorHex: string;
   swatch: string;
+  imageUrl?: string;
   qty: number;
 }
 
@@ -73,6 +74,7 @@ export const useCart = create<CartState>()(
                 colorName: color.name,
                 colorHex: color.hex,
                 swatch: product.heroSwatch,
+                imageUrl: product.imageUrl,
                 qty: 1,
               },
             ],

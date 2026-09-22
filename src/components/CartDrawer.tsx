@@ -1,12 +1,27 @@
 "use client";
-import { Minus, Plus, X } from "lucide-react";
+import Image from "next/image";
+import { Check, Lock, Minus, Plus, Sparkles, Trash2, Truck, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
-import { useCart } from "@/store/cartStore";
+import { useCart, type CartItem } from "@/store/cartStore";
 import { formatIDR } from "@/lib/products";
 import { cn } from "@/lib/cn";
 
 const SHIPPING_THRESHOLD = 800_000;
+
+function getItemImage(item: CartItem): string {
+  if (item.imageUrl) return item.imageUrl;
+  switch (item.category) {
+    case "Bedcover":
+      return "/images/cat-bedcover.jpg";
+    case "Pillow & Bolster":
+      return "/images/cat-pillow.jpg";
+    case "Bundle":
+      return "/images/cat-bundle.jpg";
+    default:
+      return "/images/cat-bedsheet.jpg";
+  }
+}
 
 export function CartDrawer() {
   const isOpen = useCart((s) => s.isOpen);
@@ -35,122 +50,235 @@ export function CartDrawer() {
 
   const remaining = Math.max(0, SHIPPING_THRESHOLD - subtotal);
   const freeShipping = remaining === 0 && items.length > 0;
+  const progressPercent = Math.min(100, (subtotal / SHIPPING_THRESHOLD) * 100);
 
   return (
     <div
       className={cn("fixed inset-0 z-50", isOpen ? "pointer-events-auto" : "pointer-events-none")}
       aria-hidden={!isOpen}
     >
+      {/* Backdrop */}
       <div
         className={cn(
-          "absolute inset-0 bg-ink/35 backdrop-blur-sm transition-opacity duration-500 ease-smooth",
+          "absolute inset-0 bg-ink/40 backdrop-blur-sm transition-opacity duration-500 ease-smooth",
           isOpen ? "opacity-100" : "opacity-0",
         )}
         onClick={close}
       />
+
+      {/* Drawer Panel */}
       <aside
         role="dialog"
         aria-label="Shopping bag"
         className={cn(
-          "absolute inset-y-0 right-0 flex w-full max-w-[440px] flex-col bg-paper shadow-soft transition-transform duration-500 ease-smooth",
+          "absolute inset-y-0 right-0 flex w-full max-w-[460px] flex-col bg-paper shadow-2xl transition-transform duration-500 ease-smooth",
           isOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
-        <header className="flex items-center justify-between border-b border-line px-8 py-6">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-soft">Your</p>
-            <h2 className="text-2xl font-medium text-ink">Bag</h2>
+        {/* Header */}
+        <header className="flex items-center justify-between border-b border-line px-6 py-5 sm:px-8">
+          <div className="flex items-baseline gap-2">
+            <h2 className="text-xl font-medium tracking-tight text-ink">Your Bag</h2>
+            <span className="text-xs font-normal text-soft">
+              ({items.reduce((sum, i) => sum + i.qty, 0)} {items.length === 1 && items[0]?.qty === 1 ? "item" : "items"})
+            </span>
           </div>
-          <button onClick={close} aria-label="Close bag" className="text-ink/70 transition-colors hover:text-ink">
-            <X className="h-5 w-5" strokeWidth={1.6} />
+          <button
+            onClick={close}
+            aria-label="Close bag"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-cream/80 hover:text-ink"
+          >
+            <X className="h-4 w-4" strokeWidth={1.8} />
           </button>
         </header>
 
+        {/* Free Shipping Progress Indicator */}
         {items.length > 0 && (
-          <div className="border-b border-line px-8 py-3">
-            <p className="text-[10px] uppercase tracking-widest text-soft">
-              {freeShipping ? "Free shipping unlocked" : `Add ${formatIDR(remaining)} for free shipping`}
-            </p>
-            <div className="mt-2 h-px w-full bg-line">
+          <div className="border-b border-line bg-cream/40 px-6 py-3.5 sm:px-8">
+            <div className="flex items-center gap-2 text-xs">
+              {freeShipping ? (
+                <>
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-sage-deep text-paper">
+                    <Check className="h-2.5 w-2.5" strokeWidth={2.5} />
+                  </span>
+                  <span className="font-medium text-ink">
+                    Free standard shipping unlocked! 🎉
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Truck className="h-3.5 w-3.5 text-soft shrink-0" strokeWidth={1.8} />
+                  <span className="text-[11px] text-ink/80">
+                    Add <strong className="font-semibold text-ink">{formatIDR(remaining)}</strong> more for free shipping
+                  </span>
+                </>
+              )}
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-line/80">
               <div
-                className="h-px bg-sage-deep transition-[width] duration-700 ease-smooth"
-                style={{ width: `${Math.min(100, (subtotal / SHIPPING_THRESHOLD) * 100)}%` }}
+                className={cn(
+                  "h-full rounded-full transition-all duration-700 ease-smooth",
+                  freeShipping ? "bg-sage-deep" : "bg-ink",
+                )}
+                style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto px-8 py-6">
+        {/* Items List */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 py-20 text-center">
-              <p className="text-2xl font-light italic text-ink/60">empty</p>
-              <p className="text-[10px] uppercase tracking-widest text-soft">Belum ada barang dalam bag.</p>
-              <Link href="/shop" onClick={close} className="mt-4 border-b border-ink pb-1 text-xs font-medium">
-                Browse shop →
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-cream/80 text-soft">
+                <Truck className="h-7 w-7 opacity-40" strokeWidth={1.5} />
+              </div>
+              <p className="mt-2 text-lg font-light text-ink">Your bag is empty</p>
+              <p className="max-w-[220px] text-xs font-light leading-relaxed text-soft">
+                Explore our pure 100% TENCEL™ Lyocell bedding collection.
+              </p>
+              <Link
+                href="/shop"
+                onClick={close}
+                className="mt-4 inline-flex items-center justify-center rounded-full bg-ink px-6 py-2.5 text-xs font-medium tracking-wider text-paper transition-all hover:bg-sage-deep"
+              >
+                Explore Collection →
               </Link>
             </div>
           ) : (
-            <ul className="space-y-6">
-              {items.map((item) => (
-                <li key={item.id} className="flex gap-4">
-                  <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-xl" style={{ backgroundColor: item.colorHex }}>
-                    <span className="slpzy-mark absolute inset-0 flex items-center justify-center text-2xl !text-paper/30">
-                      slpzy
-                    </span>
-                  </div>
-                  <div className="flex flex-1 flex-col">
-                    <div className="flex items-start justify-between gap-2">
+            <ul className="divide-y divide-line/60">
+              {items.map((item) => {
+                const itemImg = getItemImage(item);
+                return (
+                  <li key={item.id} className="flex gap-4 py-5 first:pt-0 last:pb-0">
+                    {/* Thumbnail Image + Color Swatch Badge */}
+                    <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-xl border border-line bg-cream/40">
+                      <Image
+                        src={itemImg}
+                        alt={item.name}
+                        fill
+                        sizes="80px"
+                        className="object-cover object-center"
+                      />
+                      {/* Floating Color Swatch Badge in corner */}
+                      <span
+                        className="absolute bottom-1.5 right-1.5 h-4 w-4 rounded-full border border-paper shadow-sm"
+                        style={{ backgroundColor: item.colorHex }}
+                        title={item.colorName}
+                      />
+                    </div>
+
+                    {/* Item Info */}
+                    <div className="flex flex-1 flex-col justify-between">
                       <div>
-                        <p className="text-base font-medium leading-tight text-ink">
-                          {item.displayLead && <span className="font-semibold">{item.displayLead} </span>}
-                          <span className="font-light">{item.displayTail}</span>
-                        </p>
-                        <p className="mt-1 text-[10px] uppercase tracking-wider text-soft">
-                          {item.variantLabel} · {item.colorName}
-                        </p>
-                        {item.dimensions && <p className="text-[10px] tracking-wider text-soft">{item.dimensions}</p>}
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-sm font-medium leading-tight text-ink">
+                            {item.displayLead && <span className="font-semibold">{item.displayLead} </span>}
+                            <span className="font-normal">{item.displayTail}</span>
+                          </h3>
+                          <button
+                            onClick={() => remove(item.id)}
+                            aria-label="Remove item"
+                            className="flex h-6 w-6 items-center justify-center rounded-md text-soft transition-colors hover:bg-cream hover:text-ink"
+                            title="Remove"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.6} />
+                          </button>
+                        </div>
+
+                        {/* Specs & Color indicator */}
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-soft">
+                          <span className="font-medium text-ink/80">{item.variantLabel}</span>
+                          {item.dimensions && (
+                            <>
+                              <span>·</span>
+                              <span>{item.dimensions}</span>
+                            </>
+                          )}
+                          <span>·</span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <span
+                              className="h-2 w-2 rounded-full border border-line shrink-0"
+                              style={{ backgroundColor: item.colorHex }}
+                            />
+                            <span>{item.colorName}</span>
+                          </span>
+                        </div>
                       </div>
-                      <button
-                        onClick={() => remove(item.id)}
-                        aria-label="Remove"
-                        className="text-[10px] uppercase tracking-wider text-soft underline-offset-4 hover:text-ink hover:underline"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="mt-auto flex items-center justify-between pt-3">
-                      <div className="flex items-center gap-3 rounded-full border border-line px-2 py-1">
-                        <button onClick={() => decrement(item.id)} aria-label="Decrease">
-                          <Minus className="h-3 w-3" strokeWidth={1.6} />
-                        </button>
-                        <span className="min-w-[1.25rem] text-center text-xs font-medium tabular-nums">{item.qty}</span>
-                        <button onClick={() => increment(item.id)} aria-label="Increase">
-                          <Plus className="h-3 w-3" strokeWidth={1.6} />
-                        </button>
+
+                      {/* Qty Controls & Line Price */}
+                      <div className="mt-3 flex items-center justify-between pt-1">
+                        <div className="flex items-center rounded-full border border-line bg-paper px-2 py-0.5 shadow-2xs">
+                          <button
+                            onClick={() => decrement(item.id)}
+                            aria-label="Decrease quantity"
+                            className="flex h-5 w-5 items-center justify-center text-ink/70 hover:text-ink transition-colors"
+                          >
+                            <Minus className="h-3 w-3" strokeWidth={1.8} />
+                          </button>
+                          <span className="min-w-[1.5rem] text-center text-xs font-semibold tabular-nums text-ink">
+                            {item.qty}
+                          </span>
+                          <button
+                            onClick={() => increment(item.id)}
+                            aria-label="Increase quantity"
+                            className="flex h-5 w-5 items-center justify-center text-ink/70 hover:text-ink transition-colors"
+                          >
+                            <Plus className="h-3 w-3" strokeWidth={1.8} />
+                          </button>
+                        </div>
+
+                        <span className="text-sm font-semibold tracking-tight text-ink tabular-nums">
+                          {formatIDR(item.price * item.qty)}
+                        </span>
                       </div>
-                      <span className="text-sm font-semibold text-ink tabular-nums">{formatIDR(item.price * item.qty)}</span>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
 
+        {/* Footer & Checkout */}
         {items.length > 0 && (
-          <footer className="border-t border-line px-8 pb-8 pt-6">
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs font-medium uppercase tracking-wider">Subtotal</span>
-              <span className="text-lg font-semibold text-ink tabular-nums">{formatIDR(subtotal)}</span>
+          <footer className="border-t border-line bg-paper px-6 pb-6 pt-5 sm:px-8">
+            <div className="space-y-1.5">
+              <div className="flex items-baseline justify-between text-xs text-soft">
+                <span>Shipping</span>
+                <span className="font-medium text-ink">
+                  {freeShipping ? "FREE" : "Calculated at checkout"}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between pt-1">
+                <span className="text-xs font-medium uppercase tracking-wider text-ink">Subtotal</span>
+                <span className="text-lg font-semibold tracking-tight text-ink tabular-nums">
+                  {formatIDR(subtotal)}
+                </span>
+              </div>
             </div>
-            <p className="mt-1 text-[10px] uppercase tracking-wider text-soft">Ongkos kirim dihitung saat checkout.</p>
+
             <Link
               href="/checkout"
               onClick={close}
-              className="mt-6 flex w-full items-center justify-center rounded-full bg-ink py-4 text-xs font-medium tracking-wider text-paper transition-colors hover:bg-sage-deep"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-ink py-3.5 text-xs font-medium tracking-wider text-paper transition-all hover:bg-sage-deep active:scale-[0.99]"
             >
-              Proceed to Checkout
+              <Lock className="h-3.5 w-3.5" strokeWidth={1.8} />
+              <span>Proceed to Checkout</span>
             </Link>
+
+            {/* Micro Trust Indicators */}
+            <div className="mt-3 flex items-center justify-center gap-4 text-[10px] uppercase tracking-wider text-soft">
+              <span className="inline-flex items-center gap-1">
+                <Check className="h-2.5 w-2.5 text-sage-deep" strokeWidth={2.5} /> Genuine TENCEL™
+              </span>
+              <span>·</span>
+              <span className="inline-flex items-center gap-1">
+                <Lock className="h-2.5 w-2.5" /> 256-bit Secure
+              </span>
+              <span>·</span>
+              <span>Easy Returns</span>
+            </div>
           </footer>
         )}
       </aside>
