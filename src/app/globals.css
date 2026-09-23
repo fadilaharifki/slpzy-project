@@ -51,6 +51,16 @@ body {
   background: rgba(63, 63, 63, 0.35);
 }
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 /* Catalogue-style large heading with mixed weight */
 .heading-mixed strong,
 .heading-mixed b {

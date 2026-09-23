@@ -44,7 +44,7 @@ export function ProductCard({ product, linkToDetail = false }: Props) {
 
         {/* Subtle Badge (Top-Left) */}
         {product.tag && (
-          <span className="absolute left-3.5 top-3.5 rounded-full bg-paper/90 px-2.5 py-1 text-[9px] font-medium uppercase tracking-widest text-ink shadow-sm backdrop-blur-sm">
+          <span className="absolute left-2.5 top-2.5 rounded-full bg-paper/90 px-2 py-0.5 text-[8px] sm:left-3.5 sm:top-3.5 sm:px-2.5 sm:py-1 sm:text-[9px] font-medium uppercase tracking-widest text-ink shadow-sm backdrop-blur-sm">
             {product.tag}
           </span>
         )}
@@ -59,37 +59,37 @@ export function ProductCard({ product, linkToDetail = false }: Props) {
               add(product, product.variants[0], color);
             }}
             title={`Add ${product.name} to cart`}
-            className="absolute bottom-3.5 right-3.5 flex h-9 w-9 items-center justify-center rounded-full bg-paper/95 text-ink shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-ink hover:text-paper"
+            className="absolute bottom-2.5 right-2.5 flex h-7 w-7 sm:bottom-3.5 sm:right-3.5 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-paper/95 text-ink shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-ink hover:text-paper"
           >
-            <Plus className="h-4 w-4" strokeWidth={1.8} />
+            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.8} />
           </button>
         )}
       </div>
       </Link>
 
       {/* Product Info (Clean editorial typography) */}
-      <div className="mt-4 flex flex-col space-y-2">
-        <div className="flex items-baseline justify-between gap-3">
+      <div className="mt-2.5 sm:mt-4 flex flex-col space-y-1 sm:space-y-2">
+        <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5 sm:gap-3">
           <Link
             href={linkToDetail ? `/shop/${product.id}` : `/shop#${product.id}`}
             className="hover:opacity-75 transition-opacity"
           >
-            <h3 className="text-base font-normal tracking-tight text-ink">
+            <h3 className="text-xs sm:text-base font-normal tracking-tight text-ink line-clamp-1">
               {product.name}
             </h3>
           </Link>
-          <p className="shrink-0 text-sm font-medium tabular-nums text-ink/80">
+          <p className="shrink-0 text-xs sm:text-sm font-medium tabular-nums text-ink/85">
             {formatIDR(minPrice)}
           </p>
         </div>
 
-        <p className="text-xs font-light text-soft line-clamp-1">
+        <p className="text-[10px] sm:text-xs font-light text-soft line-clamp-1">
           {product.subtitle}
         </p>
 
         {/* Minimal Color Swatches & Active Color Name */}
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-between pt-0.5 sm:pt-1">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             {product.colors.map((c, idx) => (
               <button
                 key={c.name}
@@ -98,16 +98,16 @@ export function ProductCard({ product, linkToDetail = false }: Props) {
                 aria-label={c.name}
                 title={c.name}
                 className={cn(
-                  "h-3.5 w-3.5 rounded-full transition-all",
+                  "h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 rounded-full transition-all",
                   selectedColor === idx
-                    ? "ring-1 ring-ink ring-offset-2 ring-offset-paper scale-110"
+                    ? "ring-1 ring-ink ring-offset-1 sm:ring-offset-2 ring-offset-paper scale-110"
                     : "ring-1 ring-line hover:ring-soft",
                 )}
                 style={{ backgroundColor: c.hex }}
               />
             ))}
           </div>
-          <span className="text-[11px] font-light text-soft">
+          <span className="text-[10px] sm:text-[11px] font-light text-soft truncate pl-1">
             {color.name}
           </span>
         </div>

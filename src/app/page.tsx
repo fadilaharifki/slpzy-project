@@ -3,7 +3,6 @@ import { ArrowRight, Check, Droplets, Feather, RefreshCw, ShieldCheck } from "lu
 import Link from "next/link";
 import { MarqueeTicker } from "@/components/MarqueeTicker";
 import { RevealGroup, ScrollStage } from "@/components/ScrollStage";
-import { TrustBadges } from "@/components/TrustBadges";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { formatIDR } from "@/lib/products";
 import { getCatalog } from "@/server/services/catalog";
@@ -125,9 +124,6 @@ export default async function HomePage() {
 
       {/* ============================= TICKER ============================= */}
       <MarqueeTicker items={TICKER} variant="light" />
-
-      {/* ============================= TRUST BADGES ============================= */}
-      <TrustBadges />
 
       {/* ============================= CATEGORY GRID ============================= */}
       <ScrollStage>

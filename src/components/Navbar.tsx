@@ -209,10 +209,6 @@ export function Navbar() {
           );
         })}
       </nav>
-
-      {/* Spacer so content isn't hidden behind bottom tab on mobile */}
-      <div className="h-[60px] lg:hidden" aria-hidden />
-
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );

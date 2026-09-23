@@ -53,8 +53,9 @@ export function ShopClient({
 
       {/* ── Sticky Filter Bar ── */}
       <div className="sticky top-14 z-30 border-b border-line bg-paper/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-3 lg:px-12">
-          <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-2.5 sm:px-6 sm:py-3 lg:px-12">
+          {/* Category Pills (horizontal scroll on mobile, no-wrap, hide scrollbar) */}
+          <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-0.5 -mx-4 px-4 sm:mx-0 sm:px-0">
             {FILTER_OPTIONS.map((opt) => {
               const active = filter === opt;
               return (
@@ -63,7 +64,7 @@ export function ShopClient({
                   type="button"
                   onClick={() => setFilter(opt)}
                   className={cn(
-                    "relative rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wider transition-colors duration-200",
+                    "relative shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wider transition-colors duration-200",
                     active
                       ? "text-paper"
                       : "text-soft hover:text-ink hover:bg-cream/50",
@@ -81,14 +82,14 @@ export function ShopClient({
               );
             })}
           </div>
-          <p className="text-[11px] font-medium uppercase tracking-wider text-soft">
+          <p className="shrink-0 text-[11px] font-medium uppercase tracking-wider text-soft hidden sm:block">
             {filtered.length} {filtered.length === 1 ? "Product" : "Products"}
           </p>
         </div>
       </div>
 
-      {/* ── Product Grid — 4 columns, smaller cards ── */}
-      <section className="mx-auto max-w-[1440px] px-6 py-8 lg:px-12 lg:py-12">
+      {/* ── Product Grid — 2 columns on mobile, 4 columns on desktop ── */}
+      <section className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6 sm:py-8 lg:px-12 lg:py-12">
         <AnimatePresence mode="wait">
           {filtered.length === 0 ? (
             <motion.p
@@ -97,7 +98,7 @@ export function ShopClient({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.25 }}
-              className="py-20 text-center text-xl font-light text-soft"
+              className="py-16 text-center text-base sm:text-xl font-light text-soft"
             >
               Tidak ada produk dalam kategori ini.
             </motion.p>
@@ -108,7 +109,7 @@ export function ShopClient({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6"
+              className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:gap-6"
             >
               {filtered.map((product) => (
                 <div key={product.id} id={product.id}>
