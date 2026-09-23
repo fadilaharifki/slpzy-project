@@ -26,6 +26,8 @@ export interface Product {
   heroSwatch: string;
   /** Optional uploaded product image (Supabase Storage); falls back to gradient */
   imageUrl?: string;
+  /** All product images (Supabase Storage); first image is used as cover */
+  images?: string[];
   /** Color name shown next to swatch chips */
   colors: { name: string; hex: string }[];
   variants: ProductVariant[];
@@ -34,6 +36,7 @@ export interface Product {
   inclusions?: string[];
   tag?: "New" | "Bestseller" | "Limited";
 }
+
 
 export const COLOR_PALETTE = {
   silver: { name: "Just Grey", hex: "#D7D2CB" },

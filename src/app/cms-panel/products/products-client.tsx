@@ -1,5 +1,5 @@
 "use client";
-import { ChevronDown, Plus, Trash2, Upload } from "lucide-react";
+import { ChevronDown, ImagePlus, Plus, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { deleteVariant, saveVariant, updateProduct } from "@/app/actions/cms";
@@ -25,6 +25,7 @@ interface CmsProduct {
   description: string;
   heroSwatch: string;
   imageUrl: string;
+  images: string[];
   tag: string;
   colors: Color[];
   inclusions: string[];
@@ -57,13 +58,14 @@ export function ProductsClient({ products, variants }: { products: CmsProduct[];
                   className="h-9 w-9 rounded-lg bg-cover bg-center"
                   style={{
                     backgroundColor: p.colors[0]?.hex ?? "#9DAD8E",
-                    backgroundImage: p.imageUrl ? `url(${p.imageUrl})` : undefined,
+                    backgroundImage: p.images[0] ? `url(${p.images[0]})` : p.imageUrl ? `url(${p.imageUrl})` : undefined,
                   }}
                 />
                 <div>
                   <p className="text-sm font-semibold">{p.name}</p>
                   <p className="text-[11px] text-ink/45">
-                    {p.category} · {variants.filter((v) => v.productId === p.id).length} variants
+                    {p.category} · {variants.filter((v) => v.productId === p.id).length} variants ·{" "}
+                    {p.images.length} foto
                   </p>
                 </div>
               </div>
@@ -111,6 +113,7 @@ function ProductEditor({ product, variants }: { product: CmsProduct; variants: C
       tag: form.tag as "" | "New" | "Bestseller" | "Limited",
       heroSwatch: form.heroSwatch,
       imageUrl: form.imageUrl,
+      images: form.images,
       isActive: form.isActive,
       colors: form.colors,
       inclusions: form.inclusions,
@@ -120,17 +123,32 @@ function ProductEditor({ product, variants }: { product: CmsProduct; variants: C
     if (res.ok) router.refresh();
   }
 
-  async function onUpload(file: File) {
+  async function onUploadImage(file: File) {
     setUploading(true);
     setMsg(null);
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("section", `product:${product.slug}`);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    setUploading(false);
-    if (data.ok) set("imageUrl", data.url);
-    else setMsg(data.error ?? "Upload gagal");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("section", `product:${product.slug}`);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.ok) {
+        set("images", [...form.images, data.url]);
+        setMsg(null);
+      } else {
+        setMsg(data.error ?? "Upload gagal");
+      }
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "Upload gagal (network error)");
+    } finally {
+      setUploading(false);
+      // reset file input so same file can be re-uploaded
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  function removeImage(idx: number) {
+    set("images", form.images.filter((_, i) => i !== idx));
   }
 
   return (
@@ -201,35 +219,74 @@ function ProductEditor({ product, variants }: { product: CmsProduct; variants: C
         </div>
       </div>
 
-      {/* Image */}
+      {/* ── Product Images (multi) ──────────────────────────── */}
       <div>
-        <CmsLabel>Product image</CmsLabel>
-        <div className="flex items-center gap-3">
-          {form.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={form.imageUrl} alt="" className="h-16 w-16 rounded-lg object-cover" />
-          )}
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])}
-          />
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-            className="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-xs font-medium hover:border-sage disabled:opacity-50"
-          >
-            <Upload className="h-3.5 w-3.5" /> {uploading ? "Uploading..." : "Upload image"}
-          </button>
-          {form.imageUrl && (
-            <button type="button" onClick={() => set("imageUrl", "")} className="text-xs text-rose-600 hover:underline">
-              Remove
+        <div className="mb-2 flex items-center justify-between">
+          <CmsLabel>
+            Product images{" "}
+            <span className="ml-1 font-normal text-ink/40">({form.images.length} foto · gambar pertama = cover)</span>
+          </CmsLabel>
+          <div className="flex items-center gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => e.target.files?.[0] && onUploadImage(e.target.files[0])}
+            />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-paper px-3 py-1.5 text-xs font-medium hover:border-sage disabled:opacity-50"
+            >
+              <ImagePlus className="h-3.5 w-3.5" />
+              {uploading ? "Uploading..." : "Upload foto"}
             </button>
-          )}
+          </div>
         </div>
+
+        {form.images.length === 0 ? (
+          <div
+            onClick={() => fileRef.current?.click()}
+            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line py-10 text-ink/35 transition hover:border-sage hover:text-sage-deep"
+          >
+            <ImagePlus className="h-7 w-7" />
+            <p className="text-xs">Klik untuk upload foto produk</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {form.images.map((url, idx) => (
+              <div key={idx} className="group relative overflow-hidden rounded-lg border border-line">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`Product image ${idx + 1}`} className="aspect-square w-full object-cover" />
+                {idx === 0 && (
+                  <span className="absolute left-1 top-1 rounded bg-sage-deep px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-paper">
+                    Cover
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  className="absolute right-1 top-1 rounded-full bg-ink/70 p-0.5 text-paper opacity-0 transition-opacity hover:bg-rose-600 group-hover:opacity-100"
+                  title="Hapus foto"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+            {/* Upload more tile */}
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-line text-ink/30 transition hover:border-sage hover:text-sage-deep disabled:opacity-40"
+            >
+              <ImagePlus className="h-5 w-5" />
+              <span className="text-[10px]">{uploading ? "..." : "Tambah"}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Colors */}

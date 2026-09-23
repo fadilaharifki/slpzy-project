@@ -59,6 +59,7 @@ export async function updateProduct(
     tag: "" | "New" | "Bestseller" | "Limited";
     heroSwatch: string;
     imageUrl: string;
+    images: string[];
     isActive: boolean;
     colors: { name: string; hex: string }[];
     inclusions: string[];
@@ -67,6 +68,8 @@ export async function updateProduct(
   try {
     await guard();
     if (!isDbConfigured()) return { ok: false, error: "Database belum dikonfigurasi." };
+    // Derive imageUrl from first image for backward compat
+    const derivedImageUrl = fields.images[0] ?? fields.imageUrl ?? null;
     await db
       .update(products)
       .set({
@@ -78,7 +81,8 @@ export async function updateProduct(
         description: fields.description,
         tag: fields.tag || null,
         heroSwatch: fields.heroSwatch,
-        imageUrl: fields.imageUrl || null,
+        imageUrl: derivedImageUrl,
+        images: fields.images,
         isActive: fields.isActive,
         colors: fields.colors,
         inclusions: fields.inclusions,

@@ -76,25 +76,29 @@ function MediaSection({
   async function onUpload(file: File) {
     setUploading(true);
     setError(null);
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("section", sectionKey);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (!data.ok) {
-      setError(data.error ?? "Upload gagal");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("section", sectionKey);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!data.ok) {
+        setError(data.error ?? "Upload gagal");
+        return;
+      }
+      const saved = await addMediaAsset({
+        section: sectionKey,
+        title: file.name,
+        url: data.url,
+        storagePath: data.path,
+      });
+      if (!saved.ok) setError(saved.error ?? "Gagal menyimpan");
+      else router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload gagal (network error)");
+    } finally {
       setUploading(false);
-      return;
     }
-    const saved = await addMediaAsset({
-      section: sectionKey,
-      title: file.name,
-      url: data.url,
-      storagePath: data.path,
-    });
-    setUploading(false);
-    if (!saved.ok) setError(saved.error ?? "Gagal menyimpan");
-    else router.refresh();
   }
 
   return (

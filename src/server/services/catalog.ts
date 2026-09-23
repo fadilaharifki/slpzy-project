@@ -28,6 +28,7 @@ export async function getCatalog(): Promise<Product[]> {
         subtitle: r.subtitle,
         heroSwatch: r.heroSwatch,
         imageUrl: r.imageUrl ?? undefined,
+        images: (r.images ?? []).length > 0 ? (r.images as string[]) : undefined,
         colors: r.colors ?? [],
         inclusions: r.inclusions ?? [],
         tag: r.tag ?? undefined,

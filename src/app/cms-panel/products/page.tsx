@@ -30,6 +30,7 @@ export default async function CmsProductsPage() {
             description: p.description,
             heroSwatch: p.heroSwatch,
             imageUrl: p.imageUrl ?? "",
+            images: (p.images as string[] | null) ?? [],
             tag: p.tag ?? "",
             colors: p.colors ?? [],
             inclusions: p.inclusions ?? [],

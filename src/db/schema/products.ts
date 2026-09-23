@@ -28,6 +28,8 @@ export const products = pgTable("products", {
   heroSwatch: varchar("hero_swatch", { length: 40 }).notNull().default("bg-cream"),
   /** Primary product image (from Supabase Storage) — optional, falls back to CSS gradient */
   imageUrl: text("image_url"),
+  /** All product images — imageUrl is derived from images[0] when saving */
+  images: jsonb("images").$type<string[]>().notNull().default([]),
   tag: productTagEnum("tag"),
   colors: jsonb("colors").$type<ColorJSON[]>().notNull().default([]),
   inclusions: jsonb("inclusions").$type<string[]>().notNull().default([]),
@@ -36,6 +38,7 @@ export const products = pgTable("products", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
 
 export const productVariants = pgTable("product_variants", {
   id: uuid("id").primaryKey().defaultRandom(),
