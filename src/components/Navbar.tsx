@@ -61,7 +61,7 @@ export function Navbar() {
         <div className="mx-auto flex h-14 max-w-[1500px] items-center px-5 lg:px-10">
           {/* Logo — left */}
           <Link href="/" aria-label="SLPZY home" className="shrink-0 z-10">
-            <Logo className="h-10 w-auto" />
+            <Logo className="h-16 md:h-20 w-auto" />
           </Link>
 
           {/* Nav — center (desktop only), positioned absolute to stay truly centered */}
