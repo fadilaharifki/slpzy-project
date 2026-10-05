@@ -6,6 +6,8 @@ import { RevealGroup, ScrollStage } from "@/components/ScrollStage";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { formatIDR } from "@/lib/products";
 import { getCatalog } from "@/server/services/catalog";
+import { getActiveMediaBySection, getContentMap, getHeroImages } from "@/server/services/content";
+import { cn } from "@/lib/cn";
 
 const TICKER = [
   "100% Certified TENCEL™ Lyocell",
@@ -19,9 +21,52 @@ const TICKER = [
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const products = await getCatalog();
+  const [products, heroImages, featuredMedia, marqueeMedia, productMedia, contentMap] = await Promise.all([
+    getCatalog(),
+    getHeroImages(),
+    getActiveMediaBySection("featured"),
+    getActiveMediaBySection("marquee"),
+    getActiveMediaBySection("product"),
+    getContentMap(),
+  ]);
 
   const bundles = products.filter((p) => p.category === "Bundle").slice(0, 2);
+
+  const heroImage = heroImages[0] || "/images/hero-bedroom.jpg";
+  const heroEyebrow = contentMap["hero.eyebrow"] || "SLPZY · 100% Certified TENCEL™ Lyocell";
+  const heroTitle = contentMap["hero.title"] || "Experience the perfect balance of comfort & quality.";
+  const heroBody = contentMap["hero.body"] || "Seprai dan bedcover mewah dari serat TENCEL™ Lyocell asli bersertifikat Lenzing — sejuk alami, silky-smooth, dan nyaman untuk iklim tropis.";
+  const heroCta = contentMap["hero.ctaLabel"] || "Explore Products";
+
+  const marqueeItems = contentMap["marquee.items"]
+    ? contentMap["marquee.items"]
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : TICKER;
+  const marqueeImages = marqueeMedia.map((m) => m.url);
+
+  // Priority for "Ultra Premium Fabric" image:
+  // 1. Specific image uploaded in CMS Content -> "Featured Banner (Ultra Premium Fabric)"
+  // 2. Image uploaded in CMS Content -> "Product Gallery"
+  // 3. Bedcover product image from catalog (or any real uploaded product image, e.g. Bedsheet)
+  // 4. Fallback static photo
+  const bedcoverProduct = products.find((p) => p.category === "Bedcover");
+  const anyProductWithImage = products.find((p) => p.imageUrl || (p.images && p.images.length > 0));
+  const featuredProductImage =
+    featuredMedia[0]?.url ||
+    productMedia[0]?.url ||
+    bedcoverProduct?.imageUrl ||
+    bedcoverProduct?.images?.[0] ||
+    anyProductWithImage?.imageUrl ||
+    anyProductWithImage?.images?.[0] ||
+    null;
+
+  const featuredEyebrow = contentMap["featured.eyebrow"] || "Ultra Premium Fabric";
+  const featuredTitle = contentMap["featured.title"] || "Engineered for healthier sleep.";
+  const featuredBody =
+    contentMap["featured.body"] ||
+    "Bukan bahan microtex atau imitasi polyester. TENCEL™ Lyocell diekstrak dari serat kayu alami melalui proses ramah lingkungan — kelembutan yang bertahan bertahun-tahun.";
 
   return (
     <div className="bg-paper text-ink">
@@ -30,7 +75,7 @@ export default async function HomePage() {
       <section className="relative min-h-[88vh] lg:min-h-[90vh] flex items-end overflow-hidden">
         {/* Background foto kamar */}
         <Image
-          src="/images/hero-bedroom.jpg"
+          src={heroImage}
           alt="SLPZY Premium TENCEL™ Bedding"
           fill
           priority
@@ -52,7 +97,7 @@ export default async function HomePage() {
                 data-reveal
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-paper/60" />
-                SLPZY · 100% Certified TENCEL™ Lyocell
+                {heroEyebrow}
               </div>
 
               {/* Headline */}
@@ -61,9 +106,7 @@ export default async function HomePage() {
                 data-reveal
                 data-reveal-delay="100"
               >
-                Experience the perfect{" "}
-                <strong className="font-medium">balance of comfort</strong>{" "}
-                &amp; quality.
+                {heroTitle}
               </h1>
 
               <p
@@ -71,7 +114,7 @@ export default async function HomePage() {
                 data-reveal
                 data-reveal-delay="180"
               >
-                Seprai dan bedcover mewah dari serat TENCEL™ Lyocell asli bersertifikat Lenzing — sejuk alami, silky-smooth, dan nyaman untuk iklim tropis.
+                {heroBody}
               </p>
 
               {/* CTAs */}
@@ -84,7 +127,7 @@ export default async function HomePage() {
                   href="/shop"
                   className="inline-flex items-center gap-2.5 rounded-full bg-paper px-7 py-3.5 text-xs font-medium tracking-wider text-ink transition-all hover:bg-cream"
                 >
-                  Explore Products
+                  {heroCta}
                   <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.8} />
                 </Link>
                 <Link
@@ -123,11 +166,11 @@ export default async function HomePage() {
       </section>
 
       {/* ============================= TICKER ============================= */}
-      <MarqueeTicker items={TICKER} variant="light" />
+      <MarqueeTicker items={marqueeItems} images={marqueeImages} variant="light" />
 
       {/* ============================= CATEGORY GRID ============================= */}
       <ScrollStage>
-        <CategoryGrid />
+        <CategoryGrid products={products} />
       </ScrollStage>
 
       {/* ============================= FEATURED PRODUCT BANNER (TENCEL) ============================= */}
@@ -139,18 +182,13 @@ export default async function HomePage() {
                 {/* Left: Text */}
                 <div data-reveal>
                   <p className="text-[11px] font-medium uppercase tracking-widest text-sage-deep">
-                    Ultra Premium Fabric
+                    {featuredEyebrow}
                   </p>
                   <h2 className="mt-4 text-[clamp(1.8rem,3.5vw,3rem)] font-light leading-tight tracking-tight text-paper">
-                    Engineered for{" "}
-                    <span className="font-medium text-sage-deep">
-                      healthier sleep.
-                    </span>
+                    {featuredTitle}
                   </h2>
                   <p className="mt-4 text-sm font-light leading-relaxed text-paper/65">
-                    Bukan bahan microtex atau imitasi polyester. TENCEL™ Lyocell
-                    diekstrak dari serat kayu alami melalui proses ramah lingkungan
-                    — kelembutan yang bertahan bertahun-tahun.
+                    {featuredBody}
                   </p>
 
                   {/* 3 feature badges */}
@@ -180,17 +218,31 @@ export default async function HomePage() {
                   </Link>
                 </div>
 
-                {/* Right: Product image */}
-                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl" data-reveal data-reveal-delay="120">
-                  <Image
-                    src="/images/cat-bedcover.jpg"
-                    alt="TENCEL Lyocell Premium Bedcover"
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover"
-                  />
+                {/* Right: Product image / Branded placeholder */}
+                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-[#8C8276] via-[#756C60] to-[#5A5247]" data-reveal data-reveal-delay="120">
+                  {featuredProductImage ? (
+                    <Image
+                      src={featuredProductImage}
+                      alt="TENCEL Lyocell Premium Bedcover"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.16),transparent_65%)]" />
+                      <img
+                        src="/slpzy-logo.png"
+                        alt="SLPZY"
+                        className="relative z-10 h-12 w-auto opacity-85 brightness-0 invert drop-shadow-sm"
+                      />
+                      <span className="relative z-10 mt-2 text-[10px] font-light uppercase tracking-[0.28em] text-paper/75">
+                        100% Certified Tencel™
+                      </span>
+                    </div>
+                  )}
                   {/* Corner badge */}
-                  <div className="absolute top-4 right-4 rounded-full bg-ink/70 px-3.5 py-1.5 text-[10px] font-medium tracking-widest text-paper/90 backdrop-blur-sm">
+                  <div className="absolute top-4 right-4 z-20 rounded-full bg-ink/70 px-3.5 py-1.5 text-[10px] font-medium tracking-widest text-paper/90 backdrop-blur-sm">
                     TENCEL™ CERTIFIED
                   </div>
                 </div>
@@ -280,6 +332,63 @@ export default async function HomePage() {
           </div>
         </section>
       </ScrollStage>
+
+      {/* ============================= PRODUCT GALLERY (FROM CMS) ============================= */}
+      {productMedia.length > 0 && (
+        <ScrollStage>
+          <section className="border-t border-line py-16 lg:py-24 bg-cream/30">
+            <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+              <RevealGroup>
+                <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end" data-reveal>
+                  <div>
+                    <p className="text-[11px] font-medium uppercase tracking-widest text-soft">Visual Gallery</p>
+                    <h2 className="mt-2 text-2xl font-light tracking-tight text-ink sm:text-3xl">
+                      Crafted for restful spaces.
+                    </h2>
+                  </div>
+                  <Link
+                    href="/shop"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium tracking-wider text-ink transition-colors hover:text-sage-deep"
+                  >
+                    View all products <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+                <div
+                  className={cn(
+                    "grid gap-4 sm:gap-6",
+                    productMedia.length === 1 && "grid-cols-1 max-w-2xl mx-auto",
+                    productMedia.length === 2 && "grid-cols-1 sm:grid-cols-2",
+                    productMedia.length === 3 && "grid-cols-1 sm:grid-cols-3",
+                    productMedia.length >= 4 && "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+                  )}
+                  data-reveal
+                  data-reveal-delay="100"
+                >
+                  {productMedia.map((m) => (
+                    <div
+                      key={m.id}
+                      className="group relative aspect-square overflow-hidden rounded-2xl bg-cream shadow-sm"
+                    >
+                      <Image
+                        src={m.url}
+                        alt={m.title || "SLPZY Product Gallery"}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                      {m.title && (
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/75 via-ink/20 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                          <p className="text-xs font-medium text-paper">{m.title}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </RevealGroup>
+            </div>
+          </section>
+        </ScrollStage>
+      )}
 
       {/* ============================= CLOSING CTA ============================= */}
       <ScrollStage>

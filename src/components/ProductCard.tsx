@@ -18,27 +18,36 @@ export function ProductCard({ product, linkToDetail = false }: Props) {
   const [selectedColor, setSelectedColor] = useState(0);
   const minPrice = priceFrom(product);
   const color = product.colors[selectedColor] || product.colors[0];
+  const coverImage = product.imageUrl || (product.images && product.images.length > 0 ? product.images[0] : null);
 
   return (
     <article className="group flex flex-col" aria-label={`${product.name} — ${color?.name}`}>
       {/* Product Image Frame */}
       <Link href={linkToDetail ? `/shop/${product.id}` : `/shop#${product.id}`} className="block">
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-cream/80 transition-colors">
-        {/* Fabric tone representation */}
-        {product.imageUrl ? (
+      <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-cream/80 transition-colors">
+        {/* Fabric tone representation / uploaded product image */}
+        {coverImage ? (
           <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-            style={{ backgroundImage: `url(${product.imageUrl})` }}
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+            style={{ backgroundImage: `url(${coverImage})` }}
           />
         ) : (
           <div
-            className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+            className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6 text-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             style={{
-              background: `radial-gradient(circle at 50% 40%, ${shade(color.hex, 1.06)} 0%, ${color.hex} 60%, ${shade(color.hex, 0.88)} 100%)`,
+              background: `radial-gradient(circle at 50% 35%, #8C8276 0%, #72685D 55%, #564D43 100%)`,
             }}
           >
-            {/* Very subtle organic fabric sheen */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/10 mix-blend-overlay" />
+            {/* Ambient luxury radial glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.18),transparent_65%)]" />
+            <img
+              src="/slpzy-logo.png"
+              alt="SLPZY"
+              className="relative z-10 h-8 sm:h-9 w-auto opacity-80 brightness-0 invert drop-shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
+            />
+            <span className="relative z-10 mt-2 text-[8px] sm:text-[9px] font-light uppercase tracking-[0.25em] text-paper/70">
+              100% Tencel™
+            </span>
           </div>
         )}
 

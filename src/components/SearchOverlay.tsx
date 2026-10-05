@@ -2,7 +2,7 @@
 import { Search, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { formatIDR, PRODUCTS, priceFrom } from "@/lib/products";
+import { formatIDR, PRODUCTS, priceFrom, type Product } from "@/lib/products";
 
 /**
  * Lightweight product search overlay — opens from the navbar search icon.
@@ -10,6 +10,19 @@ import { formatIDR, PRODUCTS, priceFrom } from "@/lib/products";
  */
 export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [query, setQuery] = useState("");
+  const [catalog, setCatalog] = useState<Product[]>(PRODUCTS);
+
+  useEffect(() => {
+    if (!open) return;
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setCatalog(data);
+        }
+      })
+      .catch((err) => console.error("[search] Failed to fetch live products:", err));
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -28,14 +41,14 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return PRODUCTS;
-    return PRODUCTS.filter(
+    if (!q) return catalog;
+    return catalog.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.category.toLowerCase().includes(q) ||
         p.subtitle.toLowerCase().includes(q),
     );
-  }, [query]);
+  }, [query, catalog]);
 
   if (!open) return null;
 
@@ -63,28 +76,38 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
               {query.trim() ? `${results.length} hasil` : "Semua produk"}
             </p>
             <div className="grid gap-2">
-              {results.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/shop#${p.id}`}
-                  onClick={onClose}
-                  className="group flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition-colors hover:bg-cream"
-                >
-                  <div className="flex items-center gap-4">
-                    <span
-                      className="h-11 w-11 shrink-0 rounded-md"
-                      style={{ backgroundColor: p.colors[0]?.hex ?? "#9DAD8E" }}
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-ink">{p.name}</p>
-                      <p className="text-[10px] uppercase tracking-widest text-soft">{p.category}</p>
+              {results.map((p) => {
+                const img = p.imageUrl || (p.images && p.images.length > 0 ? p.images[0] : null);
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/shop/${p.id}`}
+                    onClick={onClose}
+                    className="group flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition-colors hover:bg-cream"
+                  >
+                    <div className="flex items-center gap-4">
+                      {img ? (
+                        <span
+                          className="h-11 w-11 shrink-0 rounded-md bg-cover bg-center border border-line/60"
+                          style={{ backgroundImage: `url(${img})` }}
+                        />
+                      ) : (
+                        <span
+                          className="h-11 w-11 shrink-0 rounded-md"
+                          style={{ backgroundColor: p.colors[0]?.hex ?? "#9DAD8E" }}
+                        />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-ink">{p.name}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-soft">{p.category}</p>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-sm font-semibold tabular-nums text-sage-deep">
-                    {formatIDR(priceFrom(p))}
-                  </span>
-                </Link>
-              ))}
+                    <span className="text-sm font-semibold tabular-nums text-sage-deep">
+                      {formatIDR(priceFrom(p))}
+                    </span>
+                  </Link>
+                );
+              })}
               {results.length === 0 && (
                 <p className="py-10 text-center text-sm font-light italic text-ink/40">
                   Tidak ada produk yang cocok.

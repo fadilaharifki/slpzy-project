@@ -4,6 +4,10 @@ import { Logo } from "@/components/Logo";
 import { RevealGroup, ScrollStage } from "@/components/ScrollStage";
 import { ValueProp } from "@/components/ValueProp";
 import { VALUE_PROPS } from "@/lib/products";
+import { getActiveMediaBySection } from "@/server/services/content";
+import { cn } from "@/lib/cn";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "About Our Craft",
@@ -52,25 +56,44 @@ const VALUES = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [aboutMedia, lookbookMedia] = await Promise.all([
+    getActiveMediaBySection("about"),
+    getActiveMediaBySection("lookbook"),
+  ]);
+  const heroImage = aboutMedia[0]?.url || lookbookMedia[0]?.url || null;
+
   return (
     <div className="bg-paper text-ink">
       {/* Hero Banner */}
-      <section className="relative h-[45vh] min-h-[260px] max-h-[380px] overflow-hidden">
-        <Image
-          src="/images/cat-bundle.jpg"
-          alt="SLPZY Studio and Craft"
-          fill
-          priority
-          quality={85}
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/30 to-ink/10" />
+      <section className="relative h-[45vh] min-h-[260px] max-h-[380px] overflow-hidden bg-gradient-to-br from-[#8C8276] via-[#756C60] to-[#4F463B]">
+        {heroImage ? (
+          <>
+            <Image
+              src={heroImage}
+              alt="SLPZY Studio and Craft"
+              fill
+              priority
+              quality={85}
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/35 to-ink/15" />
+          </>
+        ) : (
+          <div className="absolute inset-0">
+            {/* Ambient luxury radial glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_30%,rgba(255,255,255,0.18),transparent_60%)]" />
+            <div className="absolute -right-8 -top-8 opacity-10">
+              <img src="/slpzy-logo.png" alt="SLPZY" className="h-64 w-auto brightness-0 invert" />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
+          </div>
+        )}
 
         <div className="absolute bottom-0 left-0 right-0 px-6 pb-10 lg:px-12">
           <div className="mx-auto max-w-[1440px]">
-            <p className="text-[11px] font-medium uppercase tracking-widest text-paper/70">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-paper/75">
               About SLPZY
             </p>
             <h1 className="mt-1.5 text-3xl font-light tracking-tight text-paper sm:text-5xl">
@@ -153,6 +176,56 @@ export default function AboutPage() {
           </div>
         </section>
       </ScrollStage>
+
+      {/* Editorial Lookbook (from CMS) */}
+      {lookbookMedia.length > 0 && (
+        <ScrollStage>
+          <section className="border-t border-line bg-cream/40 py-16 lg:py-24">
+            <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+              <RevealGroup>
+                <div className="mb-10 max-w-xl" data-reveal>
+                  <p className="text-[11px] font-medium uppercase tracking-widest text-soft">
+                    Editorial Lookbook
+                  </p>
+                  <h2 className="mt-2 text-2xl font-light tracking-tight text-ink sm:text-3xl">
+                    Moments of stillness &amp; pure comfort.
+                  </h2>
+                </div>
+                <div
+                  className={cn(
+                    "grid gap-4 sm:gap-6",
+                    lookbookMedia.length === 1 && "grid-cols-1 max-w-2xl",
+                    lookbookMedia.length === 2 && "grid-cols-1 sm:grid-cols-2",
+                    lookbookMedia.length >= 3 && "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+                  )}
+                  data-reveal
+                  data-reveal-delay="100"
+                >
+                  {lookbookMedia.map((item, idx) => (
+                    <div
+                      key={item.id}
+                      className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-cream shadow-sm"
+                    >
+                      <Image
+                        src={item.url}
+                        alt={item.title || `SLPZY Lookbook ${idx + 1}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                      {item.title && (
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/75 via-ink/20 to-transparent p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                          <p className="text-xs font-medium text-paper">{item.title}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </RevealGroup>
+            </div>
+          </section>
+        </ScrollStage>
+      )}
 
       {/* Value Props Strip */}
       <ScrollStage>

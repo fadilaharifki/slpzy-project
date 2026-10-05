@@ -91,7 +91,9 @@ export async function updateProduct(
       .where(eq(products.id, id));
     revalidatePath("/cms-panel/products");
     revalidatePath("/shop");
+    revalidatePath("/shop/[id]", "page");
     revalidatePath("/");
+    revalidatePath("/api/products");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Gagal menyimpan." };
@@ -125,6 +127,9 @@ export async function saveVariant(
     }
     revalidatePath("/cms-panel/products");
     revalidatePath("/shop");
+    revalidatePath("/shop/[id]", "page");
+    revalidatePath("/");
+    revalidatePath("/api/products");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Gagal menyimpan varian." };
@@ -138,6 +143,9 @@ export async function deleteVariant(id: string): Promise<Result> {
     await db.delete(productVariants).where(eq(productVariants.id, id));
     revalidatePath("/cms-panel/products");
     revalidatePath("/shop");
+    revalidatePath("/shop/[id]", "page");
+    revalidatePath("/");
+    revalidatePath("/api/products");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Gagal menghapus varian." };
@@ -156,6 +164,7 @@ export async function addMediaAsset(input: {
     await addMedia(input);
     revalidatePath("/cms-panel/content");
     revalidatePath("/");
+    revalidatePath("/about");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Gagal menambah gambar." };
@@ -168,6 +177,7 @@ export async function deleteMediaAsset(id: string): Promise<Result> {
     await deleteMedia(id);
     revalidatePath("/cms-panel/content");
     revalidatePath("/");
+    revalidatePath("/about");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Gagal menghapus gambar." };
@@ -180,6 +190,7 @@ export async function toggleMediaAsset(id: string, isActive: boolean): Promise<R
     await toggleMedia(id, isActive);
     revalidatePath("/cms-panel/content");
     revalidatePath("/");
+    revalidatePath("/about");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Gagal mengubah status." };
@@ -192,6 +203,7 @@ export async function updateContentBlock(key: string, value: string): Promise<Re
     await setContent(key, value);
     revalidatePath("/cms-panel/content");
     revalidatePath("/");
+    revalidatePath("/about");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Gagal menyimpan teks." };

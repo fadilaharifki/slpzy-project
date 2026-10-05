@@ -2,13 +2,13 @@
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, Check, Minus, Plus, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 import { formatIDR, type Product } from "@/lib/products";
 import { useCart } from "@/store/cartStore";
 
-// Use existing lifestyle images as thumbnails
-const THUMBNAILS = [
+// Fallback lifestyle images if a product has no uploaded media
+const FALLBACK_THUMBNAILS = [
   "/images/cat-bedsheet.jpg",
   "/images/cat-bedcover.jpg",
   "/images/cat-pillow.jpg",
@@ -33,8 +33,30 @@ export function ProductDetailClient({ product }: { product: Product }) {
     setTimeout(() => setAdded(false), 2000);
   }
 
-  // Main image src: use product image or first thumbnail
-  const mainImageSrc = product.imageUrl ?? THUMBNAILS[activeThumb];
+  // Priority for images:
+  // 1. product.images (multiple photos uploaded in CMS)
+  // 2. product.imageUrl (single cover photo)
+  // 3. Fallback to category lifestyle photo
+  const gallery = useMemo(() => {
+    if (product.images && product.images.length > 0) {
+      return product.images;
+    }
+    if (product.imageUrl) {
+      return [product.imageUrl];
+    }
+    const catFallback =
+      product.category === "Bedcover"
+        ? "/images/cat-bedcover.jpg"
+        : product.category === "Pillow & Bolster"
+        ? "/images/cat-pillow.jpg"
+        : product.category === "Bundle"
+        ? "/images/cat-bundle.jpg"
+        : "/images/cat-bedsheet.jpg";
+    return [catFallback, ...FALLBACK_THUMBNAILS.filter((t) => t !== catFallback)];
+  }, [product]);
+
+  const hasRealImage = Boolean(product.imageUrl || (product.images && product.images.length > 0));
+  const activeImage = gallery[activeThumb] ?? gallery[0];
 
   return (
     <div className="bg-paper text-ink">
@@ -56,45 +78,59 @@ export function ProductDetailClient({ product }: { product: Product }) {
           {/* ── Left: Sticky Image + Thumbnails ── */}
           <div className="lg:sticky lg:top-[72px] lg:self-start">
             <div className="flex gap-3">
-              {/* Thumbnail strip — vertical on desktop, horizontal on mobile */}
-              <div className="hidden lg:flex lg:flex-col gap-2 w-16 shrink-0">
-                {THUMBNAILS.map((src, idx) => (
-                  <button
-                    key={src}
-                    type="button"
-                    onClick={() => setActiveThumb(idx)}
-                    className={cn(
-                      "relative aspect-square w-full overflow-hidden rounded-lg border-2 transition-all",
-                      activeThumb === idx ? "border-ink" : "border-transparent opacity-60 hover:opacity-100",
-                    )}
-                  >
-                    <Image src={src} alt={`View ${idx + 1}`} fill className="object-cover" sizes="64px" />
-                  </button>
-                ))}
-              </div>
+              {/* Thumbnail strip — vertical on desktop (only if real images exist) */}
+              {hasRealImage && gallery.length > 1 && (
+                <div className="hidden lg:flex lg:flex-col gap-2 w-16 shrink-0">
+                  {gallery.map((src, idx) => (
+                    <button
+                      key={src + idx}
+                      type="button"
+                      onClick={() => setActiveThumb(idx)}
+                      className={cn(
+                        "relative aspect-square w-full overflow-hidden rounded-lg border-2 transition-all",
+                        activeThumb === idx ? "border-ink shadow-sm" : "border-transparent opacity-60 hover:opacity-100",
+                      )}
+                    >
+                      <Image src={src} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" sizes="64px" />
+                    </button>
+                  ))}
+                </div>
+              )}
 
-              {/* Main image */}
+              {/* Main image / Branded placeholder */}
               <div className="relative flex-1 overflow-hidden rounded-2xl bg-cream">
-                {product.imageUrl ? (
-                  <div
-                    className="aspect-square w-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${product.imageUrl})` }}
-                  />
-                ) : (
+                {hasRealImage ? (
                   <div className="relative aspect-square w-full">
                     <Image
-                      src={mainImageSrc}
-                      alt={product.name}
+                      key={activeImage}
+                      src={activeImage}
+                      alt={`${product.name} — view ${activeThumb + 1}`}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-opacity duration-300"
                       sizes="(max-width: 1024px) 100vw, 55vw"
                       priority
                     />
-                    {/* Color tint overlay */}
-                    <div
-                      className="absolute inset-0 mix-blend-multiply opacity-20"
-                      style={{ backgroundColor: color.hex }}
+                  </div>
+                ) : (
+                  <div
+                    className="relative aspect-square w-full flex flex-col items-center justify-center p-8 text-center transition-colors duration-500"
+                    style={{
+                      background: `radial-gradient(circle at 50% 40%, #8C8276 0%, #6E655A 60%, #524A40 100%)`,
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.18),transparent_70%)]" />
+                    <img
+                      src="/slpzy-logo.png"
+                      alt="SLPZY"
+                      className="relative z-10 h-16 w-auto opacity-85 brightness-0 invert drop-shadow-md"
                     />
+                    <span className="relative z-10 mt-3 text-xs font-light uppercase tracking-[0.3em] text-paper/80">
+                      100% Certified Tencel™
+                    </span>
+                    <div className="relative z-10 mt-5 flex items-center gap-2 rounded-full border border-paper/20 bg-paper/10 px-3.5 py-1.5 backdrop-blur-sm text-[11px] text-paper/90">
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color.hex }} />
+                      <span>{color.name}</span>
+                    </div>
                   </div>
                 )}
 
@@ -110,22 +146,24 @@ export function ProductDetailClient({ product }: { product: Product }) {
               </div>
             </div>
 
-            {/* Mobile thumbnails — horizontal strip */}
-            <div className="mt-3 flex gap-2 lg:hidden">
-              {THUMBNAILS.map((src, idx) => (
-                <button
-                  key={src}
-                  type="button"
-                  onClick={() => setActiveThumb(idx)}
-                  className={cn(
-                    "relative aspect-square w-14 overflow-hidden rounded-lg border-2 transition-all",
-                    activeThumb === idx ? "border-ink" : "border-transparent opacity-50 hover:opacity-100",
-                  )}
-                >
-                  <Image src={src} alt={`View ${idx + 1}`} fill className="object-cover" sizes="56px" />
-                </button>
-              ))}
-            </div>
+            {/* Mobile thumbnails — horizontal strip (only if real images exist) */}
+            {hasRealImage && gallery.length > 1 && (
+              <div className="mt-3 flex gap-2 lg:hidden overflow-x-auto no-scrollbar py-1">
+                {gallery.map((src, idx) => (
+                  <button
+                    key={src + idx}
+                    type="button"
+                    onClick={() => setActiveThumb(idx)}
+                    className={cn(
+                      "relative aspect-square w-14 shrink-0 overflow-hidden rounded-lg border-2 transition-all",
+                      activeThumb === idx ? "border-ink shadow-sm" : "border-transparent opacity-50 hover:opacity-100",
+                    )}
+                  >
+                    <Image src={src} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" sizes="56px" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* ── Right: Scrollable Product Info ── */}

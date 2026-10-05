@@ -7,11 +7,13 @@ const DOT_LIGHT = <span aria-hidden className="mx-8 inline-block h-1 w-1 rounded
 
 interface Props {
   items: string[];
+  images?: string[];
   variant?: "dark" | "sage" | "light";
 }
 
-export function MarqueeTicker({ items, variant = "dark" }: Props) {
-  const looped = [...items, ...items];
+export function MarqueeTicker({ items, images = [], variant = "dark" }: Props) {
+  const baseItems = items.length > 0 ? items : ["100% Certified TENCEL™ Lyocell"];
+  const looped = [...baseItems, ...baseItems];
   return (
     <div
       className={cn(
@@ -23,12 +25,23 @@ export function MarqueeTicker({ items, variant = "dark" }: Props) {
     >
       <div className="marquee-mask overflow-hidden">
         <div className="flex w-max animate-marquee">
-          {looped.map((text, i) => (
-            <Fragment key={i}>
-              <span className="whitespace-nowrap text-xs font-medium tracking-wider">{text}</span>
-              {variant === "light" ? DOT_LIGHT : DOT_DARK}
-            </Fragment>
-          ))}
+          {looped.map((text, i) => {
+            const img = images.length > 0 ? images[i % images.length] : null;
+            return (
+              <Fragment key={i}>
+                <span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-medium tracking-wider">
+                  {img && (
+                    <span
+                      className="inline-block h-4 w-4 rounded-full bg-cover bg-center shrink-0 border border-current/25"
+                      style={{ backgroundImage: `url(${img})` }}
+                    />
+                  )}
+                  {text}
+                </span>
+                {variant === "light" ? DOT_LIGHT : DOT_DARK}
+              </Fragment>
+            );
+          })}
         </div>
       </div>
     </div>

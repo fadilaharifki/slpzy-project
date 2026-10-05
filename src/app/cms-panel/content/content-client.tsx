@@ -8,9 +8,11 @@ import { CmsCard, cmsInput, CmsLabel } from "../_ui";
 
 const SECTIONS = [
   { key: "hero", label: "Homepage Banner", hint: "Gambar banner utama di halaman depan." },
-  { key: "lookbook", label: "Lookbook / Editorial", hint: "Foto editorial untuk halaman About." },
+  { key: "featured", label: "Featured Banner (Ultra Premium Fabric)", hint: "Gambar untuk banner section 'Ultra Premium Fabric' di halaman depan." },
+  { key: "about", label: "About Page Banner", hint: "Gambar banner utama di bagian atas halaman About." },
+  { key: "lookbook", label: "Lookbook / Editorial Gallery", hint: "Foto-foto galeri editorial & suasana untuk halaman About." },
   { key: "marquee", label: "Marquee Strip", hint: "Gambar kecil untuk strip berjalan." },
-  { key: "product", label: "Product Gallery", hint: "Foto galeri produk tambahan." },
+  { key: "product", label: "Product Gallery", hint: "Foto galeri visual produk di halaman depan." },
 ];
 
 interface Media {

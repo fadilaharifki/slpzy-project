@@ -9,18 +9,8 @@ import { cn } from "@/lib/cn";
 
 const SHIPPING_THRESHOLD = 800_000;
 
-function getItemImage(item: CartItem): string {
-  if (item.imageUrl) return item.imageUrl;
-  switch (item.category) {
-    case "Bedcover":
-      return "/images/cat-bedcover.jpg";
-    case "Pillow & Bolster":
-      return "/images/cat-pillow.jpg";
-    case "Bundle":
-      return "/images/cat-bundle.jpg";
-    default:
-      return "/images/cat-bedsheet.jpg";
-  }
+function getItemImage(item: CartItem): string | null {
+  return item.imageUrl || null;
 }
 
 export function CartDrawer() {
@@ -152,14 +142,27 @@ export function CartDrawer() {
                 return (
                   <li key={item.id} className="flex gap-3 py-3.5 first:pt-0 last:pb-0 sm:gap-4 sm:py-4">
                     {/* Thumbnail Image + Color Swatch Badge */}
-                    <div className="relative h-[72px] w-[64px] shrink-0 overflow-hidden rounded-lg border border-line bg-cream/40 sm:h-20 sm:w-18">
-                      <Image
-                        src={itemImg}
-                        alt={item.name}
-                        fill
-                        sizes="80px"
-                        className="object-cover object-center"
-                      />
+                    <div className="relative h-[72px] w-[64px] shrink-0 overflow-hidden rounded-lg border border-line bg-gradient-to-br from-[#8C8276] via-[#756C60] to-[#5A5247] sm:h-20 sm:w-18">
+                      {itemImg ? (
+                        <Image
+                          src={itemImg}
+                          alt={item.name}
+                          fill
+                          sizes="80px"
+                          className="object-cover object-center"
+                        />
+                      ) : (
+                        <div
+                          className="flex h-full w-full items-center justify-center p-2 text-center"
+                          style={{ backgroundColor: item.colorHex || "#756C60" }}
+                        >
+                          <img
+                            src="/slpzy-logo.png"
+                            alt="SLPZY"
+                            className="h-4 w-auto opacity-75 brightness-0 invert"
+                          />
+                        </div>
+                      )}
                       {/* Floating Color Swatch Badge in corner */}
                       <span
                         className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border border-paper shadow-sm"

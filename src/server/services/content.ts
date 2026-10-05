@@ -7,7 +7,9 @@ import { deleteImage } from "@/lib/supabase";
 /** Sections the CMS surfaces as managed image groups. */
 export const MEDIA_SECTIONS = [
   { key: "hero", label: "Homepage Banner" },
-  { key: "lookbook", label: "Lookbook / Editorial" },
+  { key: "featured", label: "Featured Banner (Ultra Premium Fabric)" },
+  { key: "about", label: "About Page Banner" },
+  { key: "lookbook", label: "Lookbook / Editorial Gallery" },
   { key: "marquee", label: "Marquee Strip" },
   { key: "product", label: "Product Gallery" },
 ] as const;
@@ -27,10 +29,15 @@ export async function getAllMedia() {
   return db.select().from(mediaAssets).orderBy(asc(mediaAssets.section), asc(mediaAssets.sortOrder));
 }
 
+export async function getActiveMediaBySection(section: string) {
+  const rows = await getMediaBySection(section);
+  return rows.filter((r) => r.isActive);
+}
+
 /** Active hero banner images for the storefront. */
 export async function getHeroImages(): Promise<string[]> {
-  const rows = await getMediaBySection("hero");
-  return rows.filter((r) => r.isActive).map((r) => r.url);
+  const rows = await getActiveMediaBySection("hero");
+  return rows.map((r) => r.url);
 }
 
 export async function addMedia(input: { section: string; title: string; url: string; storagePath: string }) {
